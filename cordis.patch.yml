@@ -1,0 +1,11 @@
+# dsh-llm-pool bundle patch: mounts the unified provider pool.
+#
+# Install with the DSH plugin manager (or `dsh plugin --profile <name> add <path>`).
+# The plugin registers one virtual provider per configured pool and serves the
+# Models-settings panel. Pools are configured in the entry's `config.providers`
+# dictionary, either through the panel or by editing this profile patch.
+- insert:
+    - id: llm-pool
+      name: dsh-llm-pool
+      config:
+        providers: {}

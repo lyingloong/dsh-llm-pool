@@ -1,0 +1,19 @@
+# Node / package output
+node_modules/
+coverage/
+*.tgz
+*.log
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# DSH runtime / plugin manager local state
+.plugin-manager/
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

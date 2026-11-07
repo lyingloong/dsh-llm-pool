@@ -1,0 +1,65 @@
+{
+  "name": "dsh-llm-pool",
+  "version": "0.1.0",
+  "description": "Unified LLM provider pools for DeepSeek Harness: session-sticky global balancing, capability-aware model mapping, and automatic failover.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "client.js",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "scripts/",
+    "docs/",
+    "examples/"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "llm",
+    "provider",
+    "model-pool",
+    "failover",
+    "load-balancing"
+  ],
+  "author": "lyingloong",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyingloong/dsh-llm-pool.git"
+  },
+  "homepage": "https://github.com/lyingloong/dsh-llm-pool#readme",
+  "bugs": {
+    "url": "https://github.com/lyingloong/dsh-llm-pool/issues"
+  },
+  "engines": {
+    "node": "^22.19 || >=24",
+    "dsh": ">=0.2.1-0 <0.3.0-0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

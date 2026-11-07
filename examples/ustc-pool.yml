@@ -1,0 +1,71 @@
+# Copy this entry into your profile's cordis.patch.yml (or create the same
+# pool from Settings → Models → 统一服务商池).
+#
+# The provider key (ustc-pool) must not collide with an existing provider route.
+# `members` is ordered: it is the rotation / assignment order.
+- id: llm-pool
+  name: dsh-llm-pool
+  config:
+    retryPolicy:
+      mode: normal
+      maxRetries: 2
+    providers:
+      ustc-pool:
+        displayName: USTC 统一池
+        # sticky: keep a session on one member (best cache).
+        # round-robin: rotate every call. failover: always prefer the first.
+        strategy: sticky
+        members:
+          - ustc
+          - ustc-dhsun
+          - ustc-qhwang
+        models:
+          - id: deepseek-flash
+            name: DeepSeek Flash
+            targets:
+              ustc: deepseek-flash
+              ustc-dhsun: deepseek-flash
+              ustc-qhwang: deepseek-flash
+
+          - id: qwen3.8-flash-next
+            name: Qwen3.8 Flash Next
+            targets:
+              ustc: qwen3.8-flash-next
+              ustc-dhsun: qwen3.8-flash-next
+              ustc-qhwang: qwen3.8-flash-next
+
+          - id: glm-5.3-flash
+            name: GLM-5.3 Flash
+            targets:
+              ustc: glm-5.3-flash
+              ustc-dhsun: glm-5.3-flash
+              ustc-qhwang: glm-5.3-flash
+
+          - id: qwen-image-2.1
+            name: Qwen Image 2.1
+            targets:
+              ustc: qwen-image-2.1
+              ustc-dhsun: qwen-image-2.1
+              ustc-qhwang: qwen-image-2.1
+
+          # A unified model may map different ids per member. Metadata is
+          # composed conservatively unless overridden here.
+          # - id: model-a
+          #   name: 模型 A
+          #   targets:
+          #     ustc: deepseek-flash
+          #     ustc-dhsun: deepseek-v4.1-flash
+          #     ustc-qhwang: deepseek-flash
+          #   contextWindow: 262144
+          #   maxTokens: 131072
+          #   input: [text, image]
+          #   efforts: [off, low, medium, high, max]
+          #   defaultEffort: high
+          #   effortMap:
+          #     ustc-qhwang:
+          #       max: high
+
+        # Optional per-pool cooldown overrides, in milliseconds.
+        # cooldown:
+        #   authMs: 600000
+        #   serverMs: 30000
