@@ -1,6 +1,7 @@
 # dsh-llm-pool
 
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/lyingloong/dsh-llm-pool)](https://github.com/lyingloong/dsh-llm-pool/releases)
 [English](README.en.md) | 简体中文
 
 为 DeepSeek Harness 增加“统一服务商 / 模型池”：把多个真实模型渠道组合成一个虚拟服务商，在模型选择器里像普通渠道一样选择它。默认按会话/子代理做**粘性分配 + 全局负载均衡**（尽量让一个会话一直用同一个渠道，保住 KV cache）；调用失败时自动切换到下一个可用渠道。

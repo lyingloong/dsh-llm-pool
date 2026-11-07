@@ -1,6 +1,7 @@
 # dsh-llm-pool
 
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/lyingloong/dsh-llm-pool)](https://github.com/lyingloong/dsh-llm-pool/releases)
 English | [简体中文](README.md)
 
 Unified model providers for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
