@@ -188,7 +188,9 @@ source and generator are [`docs/assets/icon.svg`](docs/assets/icon.svg) and
 
 The plugin never stores, reads, or logs provider keys. Panel routes use the
 authenticated DSH browser connection gate. Report vulnerabilities privately per
-[`SECURITY.md`](SECURITY.md).
+[`SECURITY.md`](SECURITY.md). The marketplace submission and release checklist
+lives in [`docs/market.md`](docs/market.md) (dsh-plugin.org, category Models &
+Reasoning).
 
 ## License
 

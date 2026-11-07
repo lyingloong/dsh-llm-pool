@@ -53,6 +53,7 @@ if (manifest !== undefined) {
 
 checkFile('cordis.patch.yml')
 checkFile('docs/demo.md')
+checkFile('docs/market.md')
 checkFile('docs/assets/icon.svg')
 checkFile('docs/assets/icon.png')
 const patch = existsSync(join(root, 'cordis.patch.yml')) ? readFileSync(join(root, 'cordis.patch.yml'), 'utf8') : ''

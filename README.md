@@ -222,6 +222,7 @@ npm pack --dry-run   # 检查 npm 包内容
 - 开发与 PR 规范见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 - 漏洞请通过 GitHub 私有安全公告报告，见 [`SECURITY.md`](SECURITY.md)；不要公开贴出 provider 密钥。
 - 设计不变量和新手引导见 [`docs/architecture.md`](docs/architecture.md)。
+- 市场提交与发布清单见 [`docs/market.md`](docs/market.md)（dsh-plugin.org，分类 Models & Reasoning）。
 
 ## License
 
