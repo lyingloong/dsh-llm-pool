@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/assets/icon.svg" width="96" height="96" alt="dsh-llm-pool icon"></p>
+
 # dsh-llm-pool
 
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
@@ -6,7 +8,8 @@
 
 为 DeepSeek Harness 增加“统一服务商 / 模型池”：把多个真实模型渠道组合成一个虚拟服务商，在模型选择器里像普通渠道一样选择它。默认按会话/子代理做**粘性分配 + 全局负载均衡**（尽量让一个会话一直用同一个渠道，保住 KV cache）；调用失败时自动切换到下一个可用渠道。
 
-> 当前版本面向 DSH `0.2.1-rc.5`。仓库名 / 包名：`dsh-llm-pool`。
+> 当前版本面向 DSH `0.2.1-rc.5`。仓库名 / 包名：`dsh-llm-pool`。  
+> 市场分类：**Models & Reasoning** · License：**MIT** · 运行时：Node.js 22.19+ / 24 · 纯 JavaScript，无原生依赖。
 
 ## 功能
 
@@ -24,21 +27,34 @@
 
 ## 安装
 
-### 从 GitHub 安装
+### 从 GitHub 安装（当前可用）
 
 ```sh
-dsh plugin --profile desktop add github:lyingloong/dsh-llm-pool
+dsh plugin --profile web add github:lyingloong/dsh-llm-pool
 ```
 
-也可以先用本地 checkout 安装再开发：
+`web` 是 DSH 市场文档里的通用 profile 名；如果你的 profile 叫 `desktop`，把 `--profile web` 换成 `--profile desktop`。安装后重启/刷新客户端，打开 **设置 → 模型**，页面底部会出现“统一服务商池”。
+
+> npm 包名同为 `dsh-llm-pool`，目前尚未发布；发布后可以用更短的一步安装：
+> `dsh plugin --profile web add dsh-llm-pool`。当前请使用上面的 GitHub 源安装。
+
+本地开发安装：
 
 ```sh
 dsh plugin --profile desktop add <本仓库绝对路径>
 ```
 
-安装后重启/刷新桌面端，打开 **设置 → 模型**，页面底部会出现“统一服务商池”。
-
 > 如果 profile 里存在已从 npm 撤包的老插件，`pnpm install` 可能因为无法重新解析它而失败；这是安装环境的问题，不是本插件。安装时可以通过插件管理器的 registry 选项指定 `https://registry.npmmirror.com` 绕过已撤包版本。
+
+## 兼容性
+
+| 项目 | 值 |
+|---|---|
+| DSH | `0.2.1-rc.5`（`engines.dsh`: `>=0.2.1-0 <0.3.0-0`） |
+| Node.js | `^22.19 \|\| >=24` |
+| 平台 | Windows / Linux / macOS；纯 JavaScript，无原生代码 |
+| Profile | 任意带 `llm`、Web server、`configEditor` 的 profile（`desktop` / `web` 均可） |
+| 依赖 | 无运行时 npm 依赖 |
 
 ## 配置
 
@@ -115,6 +131,23 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 4. 子代理、默认模型、AgentTeams 成员也可以直接选择这个虚拟 provider。
 5. 在面板里点模型行的“测试”可以发起一次真实流式调用，确认映射和渠道可用。
 
+## Demo / 验证
+
+- CI：GitHub Actions 在 Node 22/24 上跑 `npm run verify`（27 个单元测试）。
+- 真实端到端调用和故障切换记录：[`docs/demo.md`](docs/demo.md)
+  - `ustc-pool` / `deepseek-flash` 子代理调用返回 `ok`；
+  - 临时把第一成员映射到不存在的模型后，自动回退到 `ustc-dhsun` 并返回 `ok`。
+- 面板槽位、鉴权路由和 Loader 条目均已验证为 active。
+
+## 权限与外部服务
+
+- 只在当前 DSH Host 内注册虚拟 provider；没有自己的文件系统访问或独立网络访问。
+- 真实请求通过用户已经配置好的 provider route 发出；本插件**不读取、不保存、不记录 provider 密钥**。
+- 只有在用户点击面板“保存”时，才通过 `configEditor` 写入当前 profile 配置。
+- 面板 API 走 DSH 的浏览器鉴权连接；测试按钮会发起真实、计费的 provider 请求。
+- 不发送遥测；会话分配、冷却和最近调用只保存在进程内存中。
+- 不修改 DSH 核心，不 patch `dsh` 安装；卸载插件后真实 provider 配置保持不变。
+
 ## 行为细节
 
 ### 会话粘性分配
@@ -154,9 +187,10 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 无构建步骤，纯 ESM，无运行时依赖：
 
 ```sh
-npm run verify   # 静态检查 + 单元测试
-npm test         # 27 个单元测试
-npm run check    # package/bundle 校验 + 语法检查
+npm run verify       # 静态检查 + 单元测试
+npm test             # 27 个单元测试
+npm run check        # package/bundle 校验 + 语法检查
+npm pack --dry-run   # 检查 npm 包内容
 ```
 
 文件：
@@ -167,6 +201,9 @@ npm run check    # package/bundle 校验 + 语法检查
 - [`lib/server.js`](lib/server.js) — `/llm-pool/status`、`/llm-pool/save`、`/llm-pool/test`。
 - [`client.js`](client.js) — 设置 → 模型页底部的面板。
 - [`docs/architecture.md`](docs/architecture.md) — 运行时状态、选择算法、失败语义和维护不变量。
+- [`docs/demo.md`](docs/demo.md) — 真实端到端与故障切换验证记录。
+- [`docs/assets/icon.svg`](docs/assets/icon.svg) / [`scripts/make-icon.py`](scripts/make-icon.py) — 图标源文件与生成脚本。
+- [`examples/ustc-pool.yml`](examples/ustc-pool.yml) — 完整示例配置。
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — 开发、测试、发布流程。
 - [`CHANGELOG.md`](CHANGELOG.md) — 版本变更记录。
 

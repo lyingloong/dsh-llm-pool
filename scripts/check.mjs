@@ -40,6 +40,7 @@ if (manifest !== undefined) {
   if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') fail('package.json must declare dsh.bundle.patch')
   if (manifest.dsh?.client?.platform !== 'web') fail('package.json must declare dsh.client.platform=web')
   if (manifest.engines?.dsh === undefined) fail('package.json must declare engines.dsh')
+  if (typeof manifest.icon === 'string') checkFile(manifest.icon.replace(/^\.\//, ''), 'package icon')
   for (const path of Object.values(manifest.exports ?? {})) {
     if (typeof path === 'string' && path.startsWith('./')) checkFile(path.slice(2))
   }
@@ -51,6 +52,9 @@ if (manifest !== undefined) {
 }
 
 checkFile('cordis.patch.yml')
+checkFile('docs/demo.md')
+checkFile('docs/assets/icon.svg')
+checkFile('docs/assets/icon.png')
 const patch = existsSync(join(root, 'cordis.patch.yml')) ? readFileSync(join(root, 'cordis.patch.yml'), 'utf8') : ''
 if (!patch.includes('id: llm-pool') || !patch.includes('name: dsh-llm-pool')) {
   fail('cordis.patch.yml must insert the llm-pool / dsh-llm-pool entry')

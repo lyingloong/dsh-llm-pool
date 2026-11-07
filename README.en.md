@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/assets/icon.svg" width="96" height="96" alt="dsh-llm-pool icon"></p>
+
 # dsh-llm-pool
 
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
@@ -13,7 +15,8 @@ model — new sessions are balanced globally across members, while an existing
 session keeps its provider for KV-cache reuse. A failed route is retried on the
 next eligible member automatically.
 
-> Target: DSH `0.2.1-rc.5`. Repository / package name: `dsh-llm-pool`.
+> Target: DSH `0.2.1-rc.5`. Repository / package name: `dsh-llm-pool`.  
+> Market category: **Models & Reasoning** · License: **MIT** · Runtime: Node.js 22.19+ / 24 · pure JavaScript, no native dependencies.
 
 ## Features
 
@@ -41,11 +44,19 @@ next eligible member automatically.
 
 ## Install
 
-From GitHub:
+### From GitHub (available now)
 
 ```sh
-dsh plugin --profile desktop add github:lyingloong/dsh-llm-pool
+dsh plugin --profile web add github:lyingloong/dsh-llm-pool
 ```
+
+`web` is the generic profile name used by the DSH market docs. If your profile
+is named `desktop`, use `--profile desktop`. Refresh the client, then open
+**Settings → Models**. The “统一服务商池” panel is at the bottom of the page.
+
+> The npm package name is also `dsh-llm-pool`, but it is not published yet.
+> Once it is, `dsh plugin --profile web add dsh-llm-pool` will install it in one
+> step. Use the GitHub source command above for now.
 
 From a local checkout:
 
@@ -53,14 +64,21 @@ From a local checkout:
 dsh plugin --profile desktop add <absolute path to this repository>
 ```
 
-Refresh the Web UI, then open **Settings → Models**. The “统一服务商池” panel is
-at the bottom of the page.
-
 If the profile contains an old package that has been unpublished from npm,
 `pnpm install` can fail while trying to resolve it. This is an environment
 problem, not this plugin. Pass `https://registry.npmmirror.com` as the plugin
 manager's registry to work around the unpublished version, or replace/remove
 that dependency first.
+
+## Compatibility
+
+| Item | Value |
+|---|---|
+| DSH | `0.2.1-rc.5` (`engines.dsh`: `>=0.2.1-0 <0.3.0-0`) |
+| Node.js | `^22.19 \|\| >=24` |
+| Platforms | Windows / Linux / macOS; pure JavaScript, no native code |
+| Profile | Any profile with `llm`, a Web server, and `configEditor` (`desktop` / `web`) |
+| Dependencies | None at runtime |
 
 ## Quick configuration
 
@@ -100,6 +118,30 @@ Omit `targets` to use the same model id on every member. Per-model
 5. Use **Test** on a model row to make one real streaming call and verify the
    mapping and member selection.
 
+## Demo / verification
+
+- CI runs `npm run verify` on Node 22/24 (27 unit tests).
+- Real end-to-end and failover evidence: [`docs/demo.md`](docs/demo.md)
+  - A subagent using `ustc-pool` / `deepseek-flash` returned `ok`.
+  - A temporary first-target mapping to a nonexistent model fell back to
+    `ustc-dhsun` and returned `ok`.
+- The settings footer slot, authenticated API route, and Loader entry were
+  verified active.
+
+## Permissions and external services
+
+- Registers a virtual provider inside the current DSH Host; it has no direct
+  filesystem or network access of its own.
+- Real requests go through the provider routes the user configured. The plugin
+  never reads, stores, or logs provider keys.
+- It writes profile configuration only when the user clicks **Save** in the
+  panel (`configEditor`).
+- Panel routes use the authenticated DSH browser connection gate. **Test**
+  performs a real, billable provider request.
+- No telemetry. Assignments, cooldowns, and recent attempts are process-local.
+- It does not modify DSH core or patch the DSH installation; uninstalling it
+  leaves the real provider configuration untouched.
+
 ## Design choices
 
 - **Sticky beats per-call round-robin for cache.** Per-call rotation destroys
@@ -119,14 +161,18 @@ Omit `targets` to use the same model id on every member. Per-model
 No build step, no runtime dependencies:
 
 ```sh
-npm run verify   # static checks + unit tests
-npm test         # 27 unit tests
-npm run check    # package/bundle validation + syntax
+npm run verify       # static checks + unit tests
+npm test             # 27 unit tests
+npm run check        # package/bundle validation + syntax
+npm pack --dry-run   # inspect the npm package contents
 ```
 
 Repository layout, architecture, failure taxonomy, replay envelope, and
 maintainer invariants are documented in [`docs/architecture.md`](docs/architecture.md).
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development and release flow.
+The real verification record is in [`docs/demo.md`](docs/demo.md); the icon
+source and generator are [`docs/assets/icon.svg`](docs/assets/icon.svg) and
+[`scripts/make-icon.py`](scripts/make-icon.py). See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for development and release flow.
 
 ## Limitations
 

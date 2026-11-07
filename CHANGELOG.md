@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Market-facing repository assets: original icon (SVG + PNG), real
+  verification/demo record, compatibility and permission documentation.
+- `prepublishOnly` verification hook and a package icon field.
+
+### Changed
+
+- README install guidance now uses the market's `--profile web add ...`
+  convention with an explicit note for other profile names.
+
 ## [0.1.0] - 2026-11-07
 
 ### Added

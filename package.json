@@ -25,7 +25,8 @@
   "scripts": {
     "test": "node --test",
     "check": "node scripts/check.mjs",
-    "verify": "npm run check && npm test"
+    "verify": "npm run check && npm test",
+    "prepublishOnly": "npm run verify"
   },
   "keywords": [
     "dsh",
@@ -34,11 +35,13 @@
     "llm",
     "provider",
     "model-pool",
+    "model-routing",
     "failover",
     "load-balancing"
   ],
   "author": "lyingloong",
   "license": "MIT",
+  "icon": "./docs/assets/icon.png",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lyingloong/dsh-llm-pool.git"
