@@ -55,10 +55,11 @@ dsh plugin --profile desktop add <absolute path to this repository>
 Refresh the Web UI, then open **Settings → Models**. The “统一服务商池” panel is
 at the bottom of the page.
 
-If your profile contains an old unpublished package (for example
-`dsh-model-tester@0.1.2`), `pnpm install` can fail while trying to resolve it.
-Pass `https://registry.npmmirror.com` as the plugin manager's registry, or
-replace/remove that dependency first.
+If the profile contains an old package that has been unpublished from npm,
+`pnpm install` can fail while trying to resolve it. This is an environment
+problem, not this plugin. Pass `https://registry.npmmirror.com` as the plugin
+manager's registry to work around the unpublished version, or replace/remove
+that dependency first.
 
 ## Quick configuration
 

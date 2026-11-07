@@ -32,12 +32,12 @@ dsh plugin --profile desktop add github:lyingloong/dsh-llm-pool
 也可以先用本地 checkout 安装再开发：
 
 ```sh
-dsh plugin --profile desktop add C:\Users\lazeloong\Code\dsh-plugin
+dsh plugin --profile desktop add <本仓库绝对路径>
 ```
 
 安装后重启/刷新桌面端，打开 **设置 → 模型**，页面底部会出现“统一服务商池”。
 
-> 如果你的 profile 里存在已从 npm 撤包的老插件（例如 `dsh-model-tester@0.1.2`），`pnpm install` 可能因为无法重新解析它而失败；这是安装环境的问题，不是本插件。需要先把那个依赖改成可解析的本地来源，或移除它。安装时可以通过插件管理器的 registry 选项指定 `https://registry.npmmirror.com` 绕过已撤包版本。
+> 如果 profile 里存在已从 npm 撤包的老插件，`pnpm install` 可能因为无法重新解析它而失败；这是安装环境的问题，不是本插件。安装时可以通过插件管理器的 registry 选项指定 `https://registry.npmmirror.com` 绕过已撤包版本。
 
 ## 配置
 
