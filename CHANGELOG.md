@@ -50,5 +50,9 @@ All notable changes to this project are documented here. The format follows
 - The panel API uses the same authenticated connection gate as the Models
   page; no provider keys are stored, read, or logged by this plugin.
 
+### Distribution
+
+- Published `dsh-llm-pool@0.1.0` to npm.
+
 [Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/lyingloong/dsh-llm-pool/releases/tag/v0.1.0

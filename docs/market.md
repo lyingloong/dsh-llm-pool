@@ -5,21 +5,23 @@
 
 - Submission issue:
   <https://github.com/dshplugin/dsh-plugin-hub/issues/668>
+- npm package:
+  <https://www.npmjs.com/package/dsh-llm-pool>
 - Expected detail page after review:
   <https://dsh-plugin.org/plugins/lyingloong/dsh-llm-pool>
 
 ## Install commands
 
-Source install (available now):
-
-```sh
-dsh plugin --profile web add github:lyingloong/dsh-llm-pool
-```
-
-One-step npm install (available after the package is published):
+One-step npm install (recommended):
 
 ```sh
 dsh plugin --profile web add dsh-llm-pool
+```
+
+Source install:
+
+```sh
+dsh plugin --profile web add github:lyingloong/dsh-llm-pool
 ```
 
 ## Submission checklist
@@ -34,29 +36,17 @@ dsh plugin --profile web add dsh-llm-pool
 - [x] Compatibility notes
 - [x] Demo / real verification record
 - [x] Permissions and external-service notes
-- [ ] Publish to npmjs (required for the in-DSH Plugin Hub; this machine is
-  not logged in to npm yet)
+- [x] Published to npmjs (`dsh-llm-pool@0.1.0`)
 - [ ] Add the “Listed on dsh-plugin.org” badge after the listing is live
 
-## After npm publication
+## After the listing is live
 
-1. Publish from the repository root:
-
-   ```sh
-   npm login
-   npm publish --access public
-   ```
-
-   `prepublishOnly` runs `npm run verify` automatically.
-
-2. Update the submission issue's install command to:
-
-   ```text
-   dsh plugin --profile web add dsh-llm-pool
-   ```
-
-3. Confirm the generated listing page, then add the badge:
+1. Confirm the detail page above.
+2. Add the listing badge to `README.md` and `README.en.md`:
 
    ```md
    [![Listed on dsh-plugin.org](https://dsh-plugin.org/badges/listed.svg)](https://dsh-plugin.org/plugins/lyingloong/dsh-llm-pool)
    ```
+
+3. Comment on the submission issue with the published npm version and the
+   listing URL so reviewers can verify the one-step install.

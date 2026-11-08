@@ -2,6 +2,7 @@
 
 # dsh-llm-pool
 
+[![npm](https://img.shields.io/npm/v/dsh-llm-pool.svg)](https://www.npmjs.com/package/dsh-llm-pool)
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/lyingloong/dsh-llm-pool)](https://github.com/lyingloong/dsh-llm-pool/releases)
 [English](README.en.md) | 简体中文
@@ -27,18 +28,23 @@
 
 ## 安装
 
-### 从 GitHub 安装（当前可用）
+### 从 npm 安装（推荐）
+
+```sh
+dsh plugin --profile web add dsh-llm-pool
+```
+
+`web` 是 DSH 市场文档里的通用 profile 名；如果你的 profile 叫 `desktop`，把 `--profile web` 换成 `--profile desktop`。安装后重启/刷新客户端，打开 **设置 → 模型**，页面底部会出现“统一服务商池”。
+
+npm 包页：<https://www.npmjs.com/package/dsh-llm-pool>
+
+### 从 GitHub 安装（源码）
 
 ```sh
 dsh plugin --profile web add github:lyingloong/dsh-llm-pool
 ```
 
-`web` 是 DSH 市场文档里的通用 profile 名；如果你的 profile 叫 `desktop`，把 `--profile web` 换成 `--profile desktop`。安装后重启/刷新客户端，打开 **设置 → 模型**，页面底部会出现“统一服务商池”。
-
-> npm 包名同为 `dsh-llm-pool`，目前尚未发布；发布后可以用更短的一步安装：
-> `dsh plugin --profile web add dsh-llm-pool`。当前请使用上面的 GitHub 源安装。
-
-本地开发安装：
+### 本地开发安装
 
 ```sh
 dsh plugin --profile desktop add <本仓库绝对路径>

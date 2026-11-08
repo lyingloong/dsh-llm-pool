@@ -2,6 +2,7 @@
 
 # dsh-llm-pool
 
+[![npm](https://img.shields.io/npm/v/dsh-llm-pool.svg)](https://www.npmjs.com/package/dsh-llm-pool)
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/lyingloong/dsh-llm-pool)](https://github.com/lyingloong/dsh-llm-pool/releases)
 English | [简体中文](README.md)
@@ -44,21 +45,25 @@ next eligible member automatically.
 
 ## Install
 
-### From GitHub (available now)
+### From npm (recommended)
 
 ```sh
-dsh plugin --profile web add github:lyingloong/dsh-llm-pool
+dsh plugin --profile web add dsh-llm-pool
 ```
 
 `web` is the generic profile name used by the DSH market docs. If your profile
 is named `desktop`, use `--profile desktop`. Refresh the client, then open
 **Settings → Models**. The “统一服务商池” panel is at the bottom of the page.
 
-> The npm package name is also `dsh-llm-pool`, but it is not published yet.
-> Once it is, `dsh plugin --profile web add dsh-llm-pool` will install it in one
-> step. Use the GitHub source command above for now.
+npm package: <https://www.npmjs.com/package/dsh-llm-pool>
 
-From a local checkout:
+### From GitHub (source)
+
+```sh
+dsh plugin --profile web add github:lyingloong/dsh-llm-pool
+```
+
+### From a local checkout
 
 ```sh
 dsh plugin --profile desktop add <absolute path to this repository>
