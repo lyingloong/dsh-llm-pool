@@ -173,12 +173,13 @@ code, pre { font-family: var(--mono); }
 }
 h1, h2, h3 { margin: 0; }
 h1 {
-  font-size: clamp(2.8rem, 4.9vw, 4.35rem);
+  font-size: clamp(2.6rem, 4.5vw, 3.9rem);
   font-weight: 600;
-  line-height: 1.08;
+  line-height: 1.1;
   letter-spacing: -0.052em;
 }
-.period { color: var(--accent); }
+.accent { color: var(--accent); }
+.nowrap { white-space: nowrap; }
 .lede {
   max-width: 36rem;
   margin: 1.4rem 0 0;
@@ -477,14 +478,6 @@ h2 {
   font-size: 0.86rem;
   line-height: 1.75;
 }
-.tag {
-  display: inline-block;
-  margin-top: 1.05rem;
-  color: var(--dim);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.04em;
-}
 
 .flow-grid {
   display: grid;
@@ -727,7 +720,7 @@ h2 {
   .nav a:not(.nav-cta) { display: none; }
   .version { display: none; }
   .hero { padding: 3.6rem 0 3.4rem; }
-  h1 { font-size: clamp(2.4rem, 10.5vw, 3.4rem); }
+  h1 { font-size: clamp(2.1rem, 10vw, 3.2rem); }
   .lede { font-size: 0.95rem; }
   .hero-actions .btn { flex: 1; }
   .chips span { font-size: 0.65rem; }

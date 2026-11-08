@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>dsh-llm-pool — 多个模型渠道，一个统一服务商</title>
-  <meta name="description" content="dsh-llm-pool 是 DeepSeek Harness 的统一模型池插件：会话粘性、全局均衡、首 token 前自动故障切换，能力不匹配的渠道自动跳过。">
+  <title>dsh-llm-pool — 整合多个模型服务商，构建统一模型池</title>
+  <meta name="description" content="dsh-llm-pool 是 DeepSeek Harness 的统一模型池插件：将多个真实模型服务商组合成一个虚拟 provider，支持会话粘性、负载均衡和自动故障切换。">
   <meta name="theme-color" content="#08090b">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="dsh-llm-pool — 多个模型渠道，一个统一服务商">
-  <meta property="og:description" content="会话粘性、全局均衡、自动故障切换。让 DeepSeek Harness 的多个真实模型渠道像一个 provider 一样工作。">
+  <meta property="og:title" content="dsh-llm-pool — 整合多个模型服务商，构建统一模型池">
+  <meta property="og:description" content="将多个真实模型服务商组合成一个虚拟 provider。会话优先固定成员，新会话按负载分配，调用失败时自动切换。">
   <meta property="og:image" content="https://lyingloong.github.io/dsh-llm-pool/icon.png">
   <meta property="og:url" content="https://lyingloong.github.io/dsh-llm-pool/">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -25,7 +25,7 @@
         <span class="version">v0.1.1</span>
       </a>
       <nav class="nav" aria-label="主导航">
-        <a href="#how">工作方式</a>
+        <a href="#how">处理流程</a>
         <a href="#install">安装</a>
         <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/README.md">文档</a>
         <a href="https://github.com/lyingloong/dsh-llm-pool">GitHub</a>
@@ -38,11 +38,11 @@
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <div class="eyebrow"><span class="pulse"></span> DSH plugin · Models &amp; Reasoning</div>
-          <h1>多个模型渠道，<br>一个统一服务商<span class="period">.</span></h1>
+          <div class="eyebrow"><span class="pulse"></span> DSH 插件 · 统一模型池</div>
+          <h1>整合多个模型服务商<br><span class="accent">一个统一的模型池</span></h1>
           <p class="lede">
-            dsh-llm-pool 在 DeepSeek Harness 里注册一个虚拟 provider。
-            会话优先固定成员以复用前缀缓存，新会话自动均衡，调用失败在产生第一个可见 token 之前切换。
+            dsh-llm-pool 将多个真实模型服务商注册为一个<span class="nowrap">统一模型池</span>。
+            会话优先固定一个成员以复用前缀缓存，新会话按负载分配；调用失败时自动切换。
           </p>
           <div class="hero-actions">
             <a class="btn btn-light" href="#install">安装插件</a>
@@ -128,12 +128,12 @@
     <section class="section gap">
       <div class="wrap split">
         <div class="split-title">
-          <p class="kicker">The gap</p>
-          <h2>你已经有渠道，<br>缺的是路由<span class="period">.</span></h2>
+          <p class="kicker">概述</p>
+          <h2>统一模型池的工作方式</h2>
         </div>
         <div class="prose">
-          <p>多配几个 provider 不难。难的是每个会话该用哪个、失败之后怎么办、能力不匹配时谁先跳过。</p>
-          <p>dsh-llm-pool 把这些决策收进 provider 层。会话、子代理和默认模型照常选择虚拟 provider，不需要改 DSH 核心，也不需要代理服务器。</p>
+          <p>每个真实服务商仍然使用自己的 endpoint、密钥和模型配置。<br>插件把它们注册成一个虚拟 provider，在模型选择器里作为统一入口出现。</p>
+          <p>每个会话优先固定一个成员；新会话分配到当前负载较低的成员；只有调用失败或能力不匹配时才迁移。</p>
         </div>
       </div>
     </section>
@@ -141,27 +141,24 @@
     <section class="section features" id="features">
       <div class="wrap">
         <div class="section-head">
-          <p class="kicker">What it does</p>
-          <h2>一个服务商，三层决策<span class="period">.</span></h2>
+          <p class="kicker">功能</p>
+          <h2>核心能力</h2>
         </div>
         <div class="feature-grid">
           <article class="feature">
             <span class="num">01</span>
             <h3>会话粘性</h3>
             <p>同一会话尽量固定在一个成员上，前缀缓存不因每次调用换渠道而失效。新会话才进入全局均衡。</p>
-            <span class="tag">sticky by default</span>
           </article>
           <article class="feature">
             <span class="num">02</span>
             <h3>首 token 前切换</h3>
             <p>认证、配额、限流、5xx、超时会进入冷却并换下一个成员；已经输出内容后交给 DSH 的 durable retry，不拼接两个渠道。</p>
-            <span class="tag">failover before output</span>
           </article>
           <article class="feature">
             <span class="num">03</span>
             <h3>能力感知</h3>
             <p>上下文和输出取最小，推理档位取交集并支持逐成员映射，图片取并集。不满足当前请求的成员自动跳过。</p>
-            <span class="tag">capability merge</span>
           </article>
         </div>
       </div>
@@ -170,8 +167,8 @@
     <section class="section flow" id="how">
       <div class="wrap flow-grid">
         <div>
-          <p class="kicker">How it works</p>
-          <h2>一次调用，<br>三步完成<span class="period">.</span></h2>
+          <p class="kicker">流程</p>
+          <h2>一次请求的处理流程</h2>
           <ol class="steps">
             <li>
               <span class="step-num">01</span>
@@ -227,7 +224,7 @@
             <strong>prefix warm</strong>
             <em class="ok">reused</em>
           </div>
-          <div class="trace-foot">no keys stored · no proxy</div>
+          <div class="trace-foot">example trace · no keys stored · no proxy</div>
         </div>
       </div>
     </section>
@@ -235,8 +232,8 @@
     <section class="section install" id="install">
       <div class="wrap install-grid">
         <div>
-          <p class="kicker">Install</p>
-          <h2>一条命令开始<span class="period">.</span></h2>
+          <p class="kicker">安装</p>
+          <h2>安装与配置</h2>
           <p class="prose">
             把 <code>web</code> 换成你的 profile 名。安装后刷新客户端，在
             Settings → Models 底部打开“统一服务商池”。
@@ -282,8 +279,8 @@
     <section class="section boundaries">
       <div class="wrap">
         <div class="section-head">
-          <p class="kicker">Boundaries</p>
-          <h2>它不做什么<span class="period">.</span></h2>
+          <p class="kicker">限制</p>
+          <h2>使用限制与边界</h2>
         </div>
         <div class="boundary-grid">
           <div>
@@ -309,8 +306,8 @@
     <section class="cta">
       <div class="wrap cta-inner">
         <div>
-          <p class="kicker">Get started</p>
-          <h2>让路由自己工作<span class="period">.</span></h2>
+          <p class="kicker">开始使用</p>
+          <h2>安装 dsh-llm-pool</h2>
         </div>
         <div class="cta-actions">
           <a class="btn btn-light" href="https://www.npmjs.com/package/dsh-llm-pool">npm 安装</a>
