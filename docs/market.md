@@ -52,8 +52,9 @@ dsh plugin --profile web add github:lyingloong/dsh-llm-pool
 - [x] Compatibility notes
 - [x] Demo / real verification record
 - [x] Permissions and external-service notes
-- [x] Published `0.1.0` to npmjs
-- [ ] Publish `0.1.1` (generic examples) and remove `0.1.0`
+- [x] Published `0.1.1` to npmjs (latest)
+- [x] Deprecated `0.1.0` (npm blocks unpublish for bypass-2FA granular tokens)
+- [ ] Remove `0.1.0` entirely with an interactive OTP / classic token, if desired
 - [ ] Add the “Listed on dsh-plugin.org” badge after the listing is live
 
 ## After the listing is live

@@ -25,7 +25,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Distribution
 
-- Pending: publish `0.1.1` (generic examples) and remove `0.1.0` from npm.
+- Published `dsh-llm-pool@0.1.1` to npm (latest).
+- Deprecated `0.1.0`; npm blocks unpublish for bypass-2FA granular tokens, so
+  removing it requires an interactive OTP or a classic token.
 
 ## [0.1.0] - 2026-11-07
 
