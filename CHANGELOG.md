@@ -25,7 +25,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Distribution
 
-- Published `dsh-llm-pool@0.1.1` to npm.
+- Pending: publish `0.1.1` (generic examples) and remove `0.1.0` from npm.
 
 ## [0.1.0] - 2026-11-07
 
