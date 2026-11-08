@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>dsh-llm-pool — 统一模型池 for DeepSeek Harness</title>
-  <meta name="description" content="把多个真实模型渠道组合成一个统一服务商。会话粘性、全局均衡、自动故障切换，为 DeepSeek Harness 保住 KV cache。">
-  <meta name="theme-color" content="#fbfcfe" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+  <title>dsh-llm-pool — 多个模型渠道，一个统一服务商</title>
+  <meta name="description" content="dsh-llm-pool 是 DeepSeek Harness 的统一模型池插件：会话粘性、全局均衡、首 token 前自动故障切换，能力不匹配的渠道自动跳过。">
+  <meta name="theme-color" content="#08090b">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="dsh-llm-pool — 统一模型池 for DeepSeek Harness">
-  <meta property="og:description" content="多个真实模型渠道，一个统一服务商。会话粘性、全局均衡、自动故障切换。">
+  <meta property="og:title" content="dsh-llm-pool — 多个模型渠道，一个统一服务商">
+  <meta property="og:description" content="会话粘性、全局均衡、自动故障切换。让 DeepSeek Harness 的多个真实模型渠道像一个 provider 一样工作。">
   <meta property="og:image" content="https://lyingloong.github.io/dsh-llm-pool/icon.png">
   <meta property="og:url" content="https://lyingloong.github.io/dsh-llm-pool/">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -20,108 +19,302 @@
 
   <header class="top">
     <div class="wrap top-inner">
-      <a class="brand" href="./">
+      <a class="brand" href="./" aria-label="dsh-llm-pool home">
         <img src="./icon.svg" width="30" height="30" alt="">
-        <span>dsh-llm-pool</span>
+        <span class="brand-name">dsh-llm-pool</span>
+        <span class="version">v0.1.1</span>
       </a>
       <nav class="nav" aria-label="主导航">
+        <a href="#how">工作方式</a>
+        <a href="#install">安装</a>
         <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/README.md">文档</a>
         <a href="https://github.com/lyingloong/dsh-llm-pool">GitHub</a>
-        <a class="nav-npm" href="https://www.npmjs.com/package/dsh-llm-pool">npm</a>
+        <a class="nav-cta" href="#install">npm 安装</a>
       </nav>
     </div>
   </header>
 
   <main id="main">
     <section class="hero">
-      <div class="wrap hero-inner">
-        <p class="eyebrow"><span class="dot"></span> DeepSeek Harness plugin</p>
-        <h1>多个真实模型渠道，<br><em>一个统一服务商。</em></h1>
-        <p class="lede">
-          会话默认固定在一个成员上，保住前缀缓存；新会话按全局负载均衡；调用失败自动切换。
-          能力不匹配的渠道会被跳过，不需要改 DSH 核心。
-        </p>
-
-        <div class="install">
-          <code id="install-command">dsh plugin --profile web add dsh-llm-pool</code>
-          <button type="button" data-copy-target="install-command">复制</button>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="pulse"></span> DSH plugin · Models &amp; Reasoning</div>
+          <h1>多个模型渠道，<br>一个统一服务商<span class="period">.</span></h1>
+          <p class="lede">
+            dsh-llm-pool 在 DeepSeek Harness 里注册一个虚拟 provider。
+            会话优先固定成员以复用前缀缓存，新会话自动均衡，调用失败在产生第一个可见 token 之前切换。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-light" href="#install">安装插件</a>
+            <a class="btn btn-ghost" href="https://github.com/lyingloong/dsh-llm-pool">查看源码</a>
+          </div>
+          <div class="chips" aria-label="核心能力">
+            <span>会话粘性</span>
+            <span>全局均衡</span>
+            <span>自动故障切换</span>
+            <span>能力感知</span>
+          </div>
+          <p class="meta">DSH 0.2.1-rc.5 · Node.js 22.19+ / 24 · MIT · 27 tests</p>
         </div>
-        <p class="hint">把 <code>web</code> 换成你的 profile 名，例如 <code>desktop</code>。</p>
 
-        <div class="actions">
-          <a class="btn btn-primary" href="https://github.com/lyingloong/dsh-llm-pool">查看源码</a>
-          <a class="btn" href="https://www.npmjs.com/package/dsh-llm-pool">npm 包</a>
-          <a class="btn btn-quiet" href="https://github.com/lyingloong/dsh-llm-pool/blob/main/README.md">完整文档</a>
+        <div class="hero-visual">
+          <div class="pool-window" aria-label="统一服务商路由示意">
+            <div class="window-bar">
+              <span class="window-dot"></span>
+              <span class="window-title">routing model</span>
+              <span class="window-live">live</span>
+            </div>
+
+            <div class="window-body">
+              <div class="request-row">
+                <div class="node session-node">
+                  <span class="node-label">session</span>
+                  <strong>pool-a</strong>
+                  <span class="node-sub">model-a</span>
+                </div>
+
+                <div class="route-arrow" aria-hidden="true">
+                  <span></span>
+                  <em>request</em>
+                </div>
+
+                <div class="node pool-node">
+                  <img src="./icon.svg" width="44" height="44" alt="">
+                  <span class="node-label">virtual provider</span>
+                  <strong>pool-a</strong>
+                  <span class="node-sub">3 members</span>
+                </div>
+              </div>
+
+              <div class="member-head">
+                <span>real members</span>
+                <span>model mapping</span>
+              </div>
+
+              <div class="members">
+                <div class="member active">
+                  <span class="member-dot"></span>
+                  <strong>provider-a</strong>
+                  <em>active</em>
+                  <code>model-a</code>
+                </div>
+                <div class="member">
+                  <span class="member-dot"></span>
+                  <strong>provider-b</strong>
+                  <em>standby</em>
+                  <code>model-a-alt</code>
+                </div>
+                <div class="member">
+                  <span class="member-dot cooling"></span>
+                  <strong>provider-c</strong>
+                  <em>cooling</em>
+                  <code>model-a</code>
+                </div>
+              </div>
+            </div>
+
+            <div class="window-foot">
+              <span>sticky</span>
+              <span>balanced</span>
+              <span>failover ready</span>
+              <span>0 keys stored</span>
+            </div>
+          </div>
+          <p class="visual-note">路由示意，不是实际界面截图</p>
         </div>
-
-        <p class="meta">DSH 0.2.1-rc.5 · Node.js 22.19+ / 24 · MIT · 27 tests</p>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section gap">
+      <div class="wrap split">
+        <div class="split-title">
+          <p class="kicker">The gap</p>
+          <h2>你已经有渠道，<br>缺的是路由<span class="period">.</span></h2>
+        </div>
+        <div class="prose">
+          <p>多配几个 provider 不难。难的是每个会话该用哪个、失败之后怎么办、能力不匹配时谁先跳过。</p>
+          <p>dsh-llm-pool 把这些决策收进 provider 层。会话、子代理和默认模型照常选择虚拟 provider，不需要改 DSH 核心，也不需要代理服务器。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features" id="features">
       <div class="wrap">
-        <div class="section-intro">
-          <p class="kicker">Why</p>
-          <h2>不是随机换渠道，<br>而是把路由决策放进插件里。</h2>
+        <div class="section-head">
+          <p class="kicker">What it does</p>
+          <h2>一个服务商，三层决策<span class="period">.</span></h2>
         </div>
-        <div class="features">
-          <article>
+        <div class="feature-grid">
+          <article class="feature">
             <span class="num">01</span>
-            <h3>会话粘性，缓存优先</h3>
-            <p>新会话按当前绑定数最少的成员分配，之后尽量固定。只有失败或能力不匹配才迁移，避免每次调用换渠道导致 KV cache 失效。</p>
+            <h3>会话粘性</h3>
+            <p>同一会话尽量固定在一个成员上，前缀缓存不因每次调用换渠道而失效。新会话才进入全局均衡。</p>
+            <span class="tag">sticky by default</span>
           </article>
-          <article>
+          <article class="feature">
             <span class="num">02</span>
-            <h3>首 token 前自动切换</h3>
-            <p>认证、配额、限流、5xx、超时等失败会记录冷却并换下一个候选；已经有可见输出后交给 DSH 的 durable retry，不拼接两个渠道。</p>
+            <h3>首 token 前切换</h3>
+            <p>认证、配额、限流、5xx、超时会进入冷却并换下一个成员；已经输出内容后交给 DSH 的 durable retry，不拼接两个渠道。</p>
+            <span class="tag">failover before output</span>
           </article>
-          <article>
+          <article class="feature">
             <span class="num">03</span>
-            <h3>能力合并，逐请求过滤</h3>
-            <p>上下文和输出取最小，推理档位取交集并支持逐渠道映射，图片取并集。成员不满足当前请求时自动跳过。</p>
+            <h3>能力感知</h3>
+            <p>上下文和输出取最小，推理档位取交集并支持逐成员映射，图片取并集。不满足当前请求的成员自动跳过。</p>
+            <span class="tag">capability merge</span>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section section-line">
-      <div class="wrap how">
+    <section class="section flow" id="how">
+      <div class="wrap flow-grid">
         <div>
           <p class="kicker">How it works</p>
-          <h2>一次调用，三层决策</h2>
+          <h2>一次调用，<br>三步完成<span class="period">.</span></h2>
           <ol class="steps">
-            <li><strong>统一模型</strong><span>DSH 照常校验上下文、推理档位和工具；会话记录的是 <code>pool-a</code> / <code>model-a</code>。</span></li>
-            <li><strong>真实成员</strong><span>按会话绑定或全局均衡选出 <code>provider-a</code>；模型不匹配时单独分配覆盖成员。</span></li>
-            <li><strong>失败回退</strong><span>首 token 前换下一个候选并冷却；已输出后终止，由 DSH 重试整个 step。</span></li>
+            <li>
+              <span class="step-num">01</span>
+              <div>
+                <h3>DSH 请求统一模型</h3>
+                <p>会话记录 <code>pool-a</code> / <code>model-a</code>，上下文、推理档位和工具照常校验。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">02</span>
+              <div>
+                <h3>池子选出真实成员</h3>
+                <p>新会话按当前绑定数均衡；已有会话用绑定；模型映射到该成员的实际 id。</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">03</span>
+              <div>
+                <h3>失败按阶段处理</h3>
+                <p>首 token 前换下一个候选并记录冷却；已输出后终止，由 DSH 重新执行整个 step。</p>
+              </div>
+            </li>
           </ol>
         </div>
-        <pre class="code"><code>- id: llm-pool
-  name: dsh-llm-pool
-  config:
-    providers:
-      pool-a:
-        displayName: Example Pool
-        strategy: sticky
-        members: [provider-a, provider-b]
-        models:
-          - id: model-a
-            targets:
-              provider-a: model-a
-              provider-b: model-a-alt</code></pre>
+
+        <div class="trace-card" aria-label="一次调用的路由记录示意">
+          <div class="trace-top">
+            <span>routing trace</span>
+            <span class="trace-live">live</span>
+          </div>
+          <div class="trace-row">
+            <span>session</span>
+            <strong>5d2f…c91a</strong>
+            <em>sticky</em>
+          </div>
+          <div class="trace-row">
+            <span>virtual</span>
+            <strong>pool-a / model-a</strong>
+            <em>resolved</em>
+          </div>
+          <div class="trace-row">
+            <span>member</span>
+            <strong>provider-a · model-a</strong>
+            <em class="ok">healthy</em>
+          </div>
+          <div class="trace-row">
+            <span>fallback</span>
+            <strong>provider-b · model-a-alt</strong>
+            <em>ready</em>
+          </div>
+          <div class="trace-row">
+            <span>cache</span>
+            <strong>prefix warm</strong>
+            <em class="ok">reused</em>
+          </div>
+          <div class="trace-foot">no keys stored · no proxy</div>
+        </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="wrap">
-        <div class="section-intro compact">
-          <p class="kicker">Read more</p>
-          <h2>继续了解</h2>
+    <section class="section install" id="install">
+      <div class="wrap install-grid">
+        <div>
+          <p class="kicker">Install</p>
+          <h2>一条命令开始<span class="period">.</span></h2>
+          <p class="prose">
+            把 <code>web</code> 换成你的 profile 名。安装后刷新客户端，在
+            Settings → Models 底部打开“统一服务商池”。
+          </p>
+          <div class="code-block">
+            <code id="install-command">dsh plugin --profile web add dsh-llm-pool</code>
+            <button type="button" data-copy-target="install-command">复制</button>
+          </div>
+          <p class="fine">Test 会发起真实计费请求；插件不读取、不保存 provider key。</p>
+          <div class="install-links">
+            <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/README.md">README</a>
+            <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/examples/pool.yml">示例配置</a>
+            <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/docs/architecture.md">架构文档</a>
+          </div>
         </div>
-        <div class="links">
-          <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/README.md"><strong>README</strong><span>安装、配置、字段与限制</span></a>
-          <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/docs/architecture.md"><strong>设计文档</strong><span>运行时状态、选择算法与失败语义</span></a>
-          <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/docs/demo.md"><strong>验证记录</strong><span>真实调用、故障切换与 CI</span></a>
-          <a href="https://github.com/dshplugin/dsh-plugin-hub/issues/668"><strong>插件市场</strong><span>dsh-plugin.org 提交与审核</span></a>
+
+        <div class="steps-panel">
+          <div class="step-row">
+            <span>01</span>
+            <div>
+              <h3>建池</h3>
+              <p>选择成员，自动聚合模型，确认映射，保存。</p>
+            </div>
+          </div>
+          <div class="step-row">
+            <span>02</span>
+            <div>
+              <h3>选模型</h3>
+              <p>在 <code>/model</code> 或输入框菜单选择 <code>pool-a</code> → <code>model-a</code>。</p>
+            </div>
+          </div>
+          <div class="step-row">
+            <span>03</span>
+            <div>
+              <h3>照常使用</h3>
+              <p>子代理、默认模型、AgentTeams 成员都可以选它。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section boundaries">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Boundaries</p>
+          <h2>它不做什么<span class="period">.</span></h2>
+        </div>
+        <div class="boundary-grid">
+          <div>
+            <h3>不是新的模型供应商</h3>
+            <p>虚拟 provider 复用你已有的真实路由，不代理请求，也不替换 provider 配置。</p>
+          </div>
+          <div>
+            <h3>不保存 API key</h3>
+            <p>请求仍由 DSH 的 provider 层发出；插件不读取、不记录、不上传密钥。</p>
+          </div>
+          <div>
+            <h3>默认不是轮询</h3>
+            <p>默认 sticky：尽量让一个会话固定一个成员。需要时可以切到 round-robin 或 failover。</p>
+          </div>
+          <div>
+            <h3>不拼接两个回复</h3>
+            <p>已经产生可见输出后失败，调用终止，由 DSH 重试整个 step；不会把两个渠道的内容接在一起。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="wrap cta-inner">
+        <div>
+          <p class="kicker">Get started</p>
+          <h2>让路由自己工作<span class="period">.</span></h2>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-light" href="https://www.npmjs.com/package/dsh-llm-pool">npm 安装</a>
+          <a class="btn btn-ghost" href="https://github.com/lyingloong/dsh-llm-pool">GitHub</a>
         </div>
       </div>
     </section>
@@ -129,12 +322,17 @@
 
   <footer class="footer">
     <div class="wrap footer-inner">
-      <span>MIT License · Community plugin, not affiliated with DeepSeek AI.</span>
-      <span class="footer-links">
+      <div class="footer-brand">
+        <img src="./icon.svg" width="22" height="22" alt="">
+        <span>dsh-llm-pool</span>
+      </div>
+      <p>MIT License · Community plugin, not affiliated with DeepSeek AI.</p>
+      <div class="footer-links">
         <a href="https://github.com/lyingloong/dsh-llm-pool">GitHub</a>
         <a href="https://www.npmjs.com/package/dsh-llm-pool">npm</a>
+        <a href="https://github.com/dshplugin/dsh-plugin-hub/issues/668">Marketplace</a>
         <a href="https://github.com/lyingloong/dsh-llm-pool/blob/main/SECURITY.md">Security</a>
-      </span>
+      </div>
     </div>
   </footer>
 
