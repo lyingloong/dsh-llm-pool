@@ -4,6 +4,7 @@
 
 [![npm](https://img.shields.io/npm/v/dsh-llm-pool.svg)](https://www.npmjs.com/package/dsh-llm-pool)
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
+[![Pages](https://img.shields.io/badge/website-landing-0f172a)](https://lyingloong.github.io/dsh-llm-pool/)
 [![Release](https://img.shields.io/github/v/release/lyingloong/dsh-llm-pool)](https://github.com/lyingloong/dsh-llm-pool/releases)
 English | [简体中文](README.md)
 

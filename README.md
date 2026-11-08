@@ -4,6 +4,7 @@
 
 [![npm](https://img.shields.io/npm/v/dsh-llm-pool.svg)](https://www.npmjs.com/package/dsh-llm-pool)
 [![CI](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml/badge.svg)](https://github.com/lyingloong/dsh-llm-pool/actions/workflows/ci.yml)
+[![Pages](https://img.shields.io/badge/website-landing-0f172a)](https://lyingloong.github.io/dsh-llm-pool/)
 [![Release](https://img.shields.io/github/v/release/lyingloong/dsh-llm-pool)](https://github.com/lyingloong/dsh-llm-pool/releases)
 [English](README.en.md) | 简体中文
 
@@ -209,6 +210,7 @@ npm pack --dry-run   # 检查 npm 包内容
 - [`docs/architecture.md`](docs/architecture.md) — 运行时状态、选择算法、失败语义和维护不变量。
 - [`docs/demo.md`](docs/demo.md) — 真实端到端与故障切换验证记录。
 - [`docs/assets/icon.svg`](docs/assets/icon.svg) / [`scripts/make-icon.py`](scripts/make-icon.py) — 图标源文件与生成脚本。
+- [`site/`](site/index.html) / [`.github/workflows/pages.yml`](.github/workflows/pages.yml) — GitHub Pages 落地页与部署工作流。
 - [`examples/ustc-pool.yml`](examples/ustc-pool.yml) — 完整示例配置。
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — 开发、测试、发布流程。
 - [`CHANGELOG.md`](CHANGELOG.md) — 版本变更记录。

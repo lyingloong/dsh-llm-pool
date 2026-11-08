@@ -7,6 +7,8 @@
   <https://github.com/dshplugin/dsh-plugin-hub/issues/668>
 - npm package:
   <https://www.npmjs.com/package/dsh-llm-pool>
+- Landing page:
+  <https://lyingloong.github.io/dsh-llm-pool/>
 - Expected detail page after review:
   <https://dsh-plugin.org/plugins/lyingloong/dsh-llm-pool>
 

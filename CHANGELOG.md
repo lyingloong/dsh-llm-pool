@@ -10,6 +10,8 @@ All notable changes to this project are documented here. The format follows
 
 - Market-facing repository assets: original icon (SVG + PNG), real
   verification/demo record, compatibility and permission documentation.
+- GitHub Pages landing page (`site/`) deployed from `main` with the official
+  Pages Actions workflow.
 - `prepublishOnly` verification hook and a package icon field.
 
 ### Changed

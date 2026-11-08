@@ -56,6 +56,14 @@ checkFile('docs/demo.md')
 checkFile('docs/market.md')
 checkFile('docs/assets/icon.svg')
 checkFile('docs/assets/icon.png')
+checkFile('site/index.html')
+checkFile('site/styles.css')
+checkFile('.github/workflows/pages.yml')
+
+const landing = existsSync(join(root, 'site/index.html')) ? readFileSync(join(root, 'site/index.html'), 'utf8') : ''
+if (!landing.includes('dsh plugin --profile web add dsh-llm-pool')) {
+  fail('site/index.html must show the npm install command')
+}
 const patch = existsSync(join(root, 'cordis.patch.yml')) ? readFileSync(join(root, 'cordis.patch.yml'), 'utf8') : ''
 if (!patch.includes('id: llm-pool') || !patch.includes('name: dsh-llm-pool')) {
   fail('cordis.patch.yml must insert the llm-pool / dsh-llm-pool entry')

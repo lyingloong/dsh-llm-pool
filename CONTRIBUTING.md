@@ -59,6 +59,14 @@ Add a test for every new selection rule, failure class, capability merge, or
 config-validation rule. The fake LLM in `test/manager.test.mjs` can script
 success, failure, partial output, empty output, and replay state.
 
+## Landing page
+
+`site/` is a dependency-free static landing page. `.github/workflows/pages.yml`
+deploys it from `main` with the official GitHub Pages artifact actions; there
+is no `gh-pages` branch. Enable Pages with **Source: GitHub Actions** in the
+repository settings. Update the install command or version in `site/index.html`
+together with the README.
+
 ## Pull requests
 
 - Keep changes focused and explain the user-visible behavior.
