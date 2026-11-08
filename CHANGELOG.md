@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-08
+
 ### Added
 
 - Market-facing repository assets: original icon (SVG + PNG), real
@@ -16,8 +18,14 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Generic provider/model example names throughout README, docs, examples, and
+  the landing page; removed deployment-specific test route names.
 - README install guidance now uses the market's `--profile web add ...`
   convention with an explicit note for other profile names.
+
+### Distribution
+
+- Published `dsh-llm-pool@0.1.1` to npm.
 
 ## [0.1.0] - 2026-11-07
 
@@ -56,5 +64,6 @@ All notable changes to this project are documented here. The format follows
 
 - Published `dsh-llm-pool@0.1.0` to npm.
 
-[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/lyingloong/dsh-llm-pool/releases/tag/v0.1.0

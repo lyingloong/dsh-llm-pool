@@ -1,13 +1,14 @@
 # Verification / demo
 
 This is a maintainer verification record from the development environment on
-2026-11-07. It is real output, not a mockup. The pool used the USTC routes from
-the deployment profile:
+2026-11-07. It is real output, not a mockup. Provider route names are redacted
+and replaced with `provider-a`, `provider-b`, and `provider-c`; the test used
+three real routes from a deployment profile.
 
 ```text
-pool:     ustc-pool
-members:  ustc → ustc-dhsun → ustc-qhwang
-model:    deepseek-flash
+pool:     pool-a
+members:  provider-a → provider-b → provider-c
+model:    model-a
 DSH:      0.2.1-rc.5 (desktop profile)
 ```
 
@@ -30,8 +31,8 @@ A subagent was created with an explicit target override:
 
 ```js
 const text = await agent('请只回复 ok，不要使用任何工具。', {
-  provider: 'ustc-pool',
-  model: 'deepseek-flash',
+  provider: 'pool-a',
+  model: 'model-a',
 })
 // text === 'ok'
 ```
@@ -45,11 +46,11 @@ A temporary probe pool mapped the first member to a deliberately nonexistent
 model:
 
 ```text
-ustc-probe
-  members: [ustc, ustc-dhsun]
-  deepseek-flash.targets:
-    ustc:      nonexistent-model-xyz   ← fails with UNKNOWN_MODEL
-    ustc-dhsun: deepseek-flash         ← succeeds
+pool-probe
+  members: [provider-a, provider-b]
+  model-a.targets:
+    provider-a: nonexistent-model-xyz   ← fails with UNKNOWN_MODEL
+    provider-b: model-a                ← succeeds
 ```
 
 The same subagent call returned `ok`, proving that the pre-token failure was

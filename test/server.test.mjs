@@ -43,7 +43,7 @@ test('status projection contains config, available channels, and pool health', a
   const manager = new PoolManager({ llm, config })
   const server = createPoolServer({ config, manager, llm })
   const value = await server.statusValue()
-  assert.equal(value.version, '0.1.0')
+  assert.equal(value.version, '0.1.1')
   assert.equal(value.writable, false)
   assert.deepEqual(value.availableProviders.map((provider) => provider.id), ['a', 'b'])
   assert.equal(value.pools.length, 1)

@@ -1,0 +1,56 @@
+# Copy this entry into your profile's cordis.patch.yml (or create the same
+# pool from Settings → Models → 统一服务商池).
+#
+# The provider key (pool-a) must not collide with an existing provider route.
+# `members` is ordered: it is the rotation / assignment order.
+- id: llm-pool
+  name: dsh-llm-pool
+  config:
+    retryPolicy:
+      mode: normal
+      maxRetries: 2
+    providers:
+      pool-a:
+        displayName: Example Pool
+        # sticky: keep a session on one member (best cache).
+        # round-robin: rotate every call. failover: always prefer the first.
+        strategy: sticky
+        members:
+          - provider-a
+          - provider-b
+          - provider-c
+        models:
+          - id: model-a
+            name: Model A
+            targets:
+              provider-a: model-a
+              provider-b: model-a-alt
+              provider-c: model-a
+
+          - id: model-b
+            name: Model B
+            targets:
+              provider-a: model-b
+              provider-b: model-b
+              provider-c: model-b
+
+          # A unified model can override composed capabilities when the
+          # defaults are too conservative for your deployment.
+          # - id: model-c
+          #   name: Model C
+          #   targets:
+          #     provider-a: model-c
+          #     provider-b: model-c-alt
+          #   contextWindow: 262144
+          #   maxTokens: 131072
+          #   input: [text, image]
+          #   efforts: [off, low, medium, high, max]
+          #   defaultEffort: high
+          #   effortMap:
+          #     provider-b:
+          #       max: high
+
+        # Optional per-pool cooldown overrides, in milliseconds.
+        # cooldown:
+        #   authMs: 600000
+        #   serverMs: 30000

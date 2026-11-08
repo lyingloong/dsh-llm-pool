@@ -22,9 +22,9 @@ next eligible member automatically.
 
 ## Features
 
-- **Virtual providers** such as `ustc-pool` with ordered real members
-  (`ustc`, `ustc-dhsun`, `ustc-qhwang`, …).
-- **Unified models** such as `deepseek-flash`; each member may map a unified
+- **Virtual providers** such as `pool-a` with ordered real members
+  (`provider-a`, `provider-b`, `provider-c`, …).
+- **Unified models** such as `model-a`; each member may map a unified
   model to a different real model id.
 - **Session-sticky global balancing**: the first call for a session chooses the
   least-loaded member; later calls reuse it. A failed member hands the session
@@ -88,24 +88,23 @@ that dependency first.
 
 ## Quick configuration
 
-The full example is [`examples/ustc-pool.yml`](examples/ustc-pool.yml).
+The full example is [`examples/pool.yml`](examples/pool.yml).
 
 ```yaml
 - id: llm-pool
   name: dsh-llm-pool
   config:
     providers:
-      ustc-pool:
-        displayName: USTC Pool
+      pool-a:
+        displayName: Example Pool
         strategy: sticky        # sticky | round-robin | failover
-        members: [ustc, ustc-dhsun, ustc-qhwang]
+        members: [provider-a, provider-b]
         models:
-          - id: deepseek-flash
-            name: DeepSeek Flash
+          - id: model-a
+            name: Model A
             targets:
-              ustc: deepseek-flash
-              ustc-dhsun: deepseek-flash
-              ustc-qhwang: deepseek-flash
+              provider-a: model-a
+              provider-b: model-a-alt
 ```
 
 Omit `targets` to use the same model id on every member. Per-model
@@ -117,7 +116,7 @@ Omit `targets` to use the same model id on every member. Per-model
 1. Configure the real provider routes (endpoints, credentials, models) as
    usual. The pool never stores or reads their keys.
 2. Create a pool in **Settings → Models → 统一服务商池**, or use the YAML entry.
-3. Select `ustc-pool` → `deepseek-flash` (or another unified model) from
+3. Select `pool-a` → `model-a` (or another unified model) from
    `/model` or the composer model menu.
 4. Subagents, the default model, and AgentTeams members can select the virtual
    provider as well.
@@ -128,9 +127,9 @@ Omit `targets` to use the same model id on every member. Per-model
 
 - CI runs `npm run verify` on Node 22/24 (27 unit tests).
 - Real end-to-end and failover evidence: [`docs/demo.md`](docs/demo.md)
-  - A subagent using `ustc-pool` / `deepseek-flash` returned `ok`.
+  - A subagent using `pool-a` / `model-a` returned `ok`.
   - A temporary first-target mapping to a nonexistent model fell back to
-    `ustc-dhsun` and returned `ok`.
+    the next member and returned `ok`.
 - The settings footer slot, authenticated API route, and Loader entry were
   verified active.
 

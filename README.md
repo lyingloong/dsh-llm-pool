@@ -15,8 +15,8 @@
 
 ## 功能
 
-- **统一服务商**：一个虚拟 provider 路由，例如 `ustc-pool`，下面挂 `ustc`、`ustc-dhsun`、`ustc-qhwang` 等真实渠道。
-- **统一模型**：在虚拟 provider 下定义 `deepseek-flash`、`model-a` 等模型；每个统一模型可映射到不同渠道的不同实际模型 id。
+- **统一服务商**：一个虚拟 provider 路由，例如 `pool-a`，下面挂 `provider-a`、`provider-b`、`provider-c` 等真实渠道。
+- **统一模型**：在虚拟 provider 下定义 `model-a`、`model-b` 等模型；每个统一模型可映射到不同渠道的不同实际模型 id。
 - **会话粘性 + 全局均衡**（默认）：
   - 新会话/子代理第一次调用时，选当前会话数最少的成员渠道；
   - 之后该会话的同一统一模型一直用这个渠道，避免每次调用换渠道导致前缀缓存失效；
@@ -65,7 +65,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 ## 配置
 
-配置保存在当前 profile 的 `cordis.patch.yml` 中，也可以通过面板保存。完整示例见 [`examples/ustc-pool.yml`](examples/ustc-pool.yml)。简例：
+配置保存在当前 profile 的 `cordis.patch.yml` 中，也可以通过面板保存。完整示例见 [`examples/pool.yml`](examples/pool.yml)。简例：
 
 ```yaml
 - id: llm-pool
@@ -76,24 +76,24 @@ dsh plugin --profile desktop add <本仓库绝对路径>
       mode: normal
       maxRetries: 2
     providers:
-      ustc-pool:
-        displayName: USTC 统一池
+      pool-a:
+        displayName: Example Pool
         # sticky | round-robin | failover；默认 sticky
         strategy: sticky
-        members: [ustc, ustc-dhsun, ustc-qhwang]
+        members: [provider-a, provider-b, provider-c]
         models:
-          - id: deepseek-flash
-            name: DeepSeek Flash
-            targets:
-              ustc: deepseek-flash
-              ustc-dhsun: deepseek-flash
-              ustc-qhwang: deepseek-flash
           - id: model-a
-            name: 模型 A
+            name: Model A
             targets:
-              ustc: deepseek-flash
-              ustc-dhsun: deepseek-v4.1-flash
-              ustc-qhwang: deepseek-flash
+              provider-a: model-a
+              provider-b: model-a-alt
+              provider-c: model-a
+          - id: model-b
+            name: Model B
+            targets:
+              provider-a: model-b
+              provider-b: model-b
+              provider-c: model-b
             # 可选：统一能力覆盖
             contextWindow: 262144
             maxTokens: 131072
@@ -102,7 +102,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
             defaultEffort: high
             # 每个渠道的推理档位映射（统一档位 -> 该渠道实际档位）
             effortMap:
-              ustc-qhwang:
+              provider-b:
                 max: high
         # 可选：覆盖失败冷却时间（毫秒）
         cooldown:
@@ -114,7 +114,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 | 字段 | 说明 |
 |---|---|
-| `providers.<id>` | 虚拟 provider 路由名；必须与已有 provider 不重名（不能直接叫 `ustc`）。 |
+| `providers.<id>` | 虚拟 provider 路由名；必须与已有 provider 不重名（例如已有 `provider-a` 时不能再用同名）。 |
 | `displayName` | 模型选择器里显示的名称。 |
 | `strategy` | `sticky`（默认，会话粘性）/ `round-robin`（每次调用轮询）/ `failover`（固定第一个可用）。 |
 | `members` | 有序的真实 provider 路由列表；也是轮询/分配顺序。 |
@@ -134,7 +134,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 1. 在真实渠道里配好各自的 endpoint / key / 模型（本插件复用它们，不需要再配密钥）。
 2. 在 **设置 → 模型** 底部面板点“新增统一服务商”，选择成员、自动聚合模型、调整映射，保存。
-3. 在会话的 `/model` 或输入框模型菜单里选择 `ustc-pool` 下的统一模型。
+3. 在会话的 `/model` 或输入框模型菜单里选择 `pool-a` 下的统一模型。
 4. 子代理、默认模型、AgentTeams 成员也可以直接选择这个虚拟 provider。
 5. 在面板里点模型行的“测试”可以发起一次真实流式调用，确认映射和渠道可用。
 
@@ -142,8 +142,8 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 - CI：GitHub Actions 在 Node 22/24 上跑 `npm run verify`（27 个单元测试）。
 - 真实端到端调用和故障切换记录：[`docs/demo.md`](docs/demo.md)
-  - `ustc-pool` / `deepseek-flash` 子代理调用返回 `ok`；
-  - 临时把第一成员映射到不存在的模型后，自动回退到 `ustc-dhsun` 并返回 `ok`。
+  - 一个三渠道统一池的子代理调用返回 `ok`；
+  - 临时把第一成员映射到不存在的模型后，自动回退到下一个成员并返回 `ok`。
 - 面板槽位、鉴权路由和 Loader 条目均已验证为 active。
 
 ## 权限与外部服务
@@ -211,7 +211,7 @@ npm pack --dry-run   # 检查 npm 包内容
 - [`docs/demo.md`](docs/demo.md) — 真实端到端与故障切换验证记录。
 - [`docs/assets/icon.svg`](docs/assets/icon.svg) / [`scripts/make-icon.py`](scripts/make-icon.py) — 图标源文件与生成脚本。
 - [`site/`](site/index.html) / [`.github/workflows/pages.yml`](.github/workflows/pages.yml) — GitHub Pages 落地页与部署工作流。
-- [`examples/ustc-pool.yml`](examples/ustc-pool.yml) — 完整示例配置。
+- [`examples/pool.yml`](examples/pool.yml) — 完整示例配置。
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — 开发、测试、发布流程。
 - [`CHANGELOG.md`](CHANGELOG.md) — 版本变更记录。
 

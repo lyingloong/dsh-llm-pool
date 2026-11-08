@@ -28,7 +28,7 @@ behavior lives in `README.md`; this file explains how the runtime realizes it.
 
 ```text
 Session / subagent / compaction / title
-        provider = "ustc-pool", model = "deepseek-flash"
+        provider = "pool-a", model = "model-a"
                          │
                          ▼
                 ctx.llm.prepareCall / stream
@@ -185,8 +185,8 @@ Assistant messages produced through a pool carry an opaque wrapper:
 ```js
 {
   __llmPool: 1,
-  provider: "ustc",
-  model: "deepseek-flash",
+  provider: "provider-a",
+  model: "model-a",
   inner: <the target adapter's replayState>
 }
 ```

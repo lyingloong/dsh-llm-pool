@@ -38,7 +38,7 @@ dsh plugin --profile web add github:lyingloong/dsh-llm-pool
 - [x] Compatibility notes
 - [x] Demo / real verification record
 - [x] Permissions and external-service notes
-- [x] Published to npmjs (`dsh-llm-pool@0.1.0`)
+- [x] Published to npmjs (`dsh-llm-pool@0.1.1`)
 - [ ] Add the “Listed on dsh-plugin.org” badge after the listing is live
 
 ## After the listing is live
