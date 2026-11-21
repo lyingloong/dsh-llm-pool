@@ -51,6 +51,18 @@ function emptyResponse() {
   }
 }
 
+function imageFailure(message) {
+  return async function* () {
+    yield {
+      type: 'finish',
+      reason: {
+        kind: 'error',
+        failure: { code: 'CONTEXT_WINDOW_EXCEEDED', status: 400, message },
+      },
+    }
+  }
+}
+
 class FakeLlm {
   constructor(providers) {
     this.providers = providers
@@ -194,6 +206,25 @@ test('image requests skip text-only members', async () => {
   const messages = [{ role: 'user', content: [{ type: 'image', attachment: { attachmentId: 'x' } }] }]
   const chunks = await collect(adapter.stream({ provider: 'pool', model: 'm', sessionId: 's1', messages }))
   assert.equal(textOf(chunks), 'b')
+})
+
+test('image budget rejection becomes the DSH image offload signal', async () => {
+  const providers = makeProviders()
+  for (const [id, provider] of Object.entries(providers)) {
+    provider.models.m.info = info(id, 'm', { inputModalities: ['text', 'image'] })
+    provider.models.m.script = imageFailure(
+      "Invalid multimodal request: the request carries 32 image items, above this model's limit of 10",
+    )
+  }
+  const { llm, manager, adapter } = makeRuntime(providers, buildConfig({ input: ['text', 'image'] }))
+  manager.setPreferred('s1', manager.pool('pool'), 'a')
+  const messages = [{ role: 'user', content: Array.from({ length: 32 }, () => ({ type: 'image' })) }]
+  const chunks = await collect(adapter.stream({ provider: 'pool', model: 'm', sessionId: 's1', messages }))
+  const failure = chunks.at(-1).reason.failure
+  assert.equal(chunks.at(-1).reason.kind, 'error')
+  assert.equal(failure.code, 'IMAGE_OFFLOAD_REQUIRED')
+  assert.equal(failure.offloadImages, 22)
+  assert.equal(llm.calls.length, 3)
 })
 
 test('reasoning effort filters candidates and applies an explicit mapping', async () => {

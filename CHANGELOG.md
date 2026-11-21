@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-21
+
+### Fixed
+
+- Translate a provider's image-budget rejection (for example “carries 32 image
+  items, above this model's limit of 10”, or an unsupported multimodal
+  function output) into DSH's `IMAGE_OFFLOAD_REQUIRED` signal carrying
+  `offloadImages`. DSH's image-offload executor can then replace the oldest
+  images with placeholders and retry instead of failing every pool candidate.
+- Count images nested in tool-result content, and preserve `offloadImages`
+  through finish/failure chunks.
+
+### Distribution
+
+- Published `dsh-llm-pool@0.1.2` to npm (latest).
+
 ## [0.1.1] - 2026-11-08
 
 ### Added
@@ -66,6 +82,7 @@ All notable changes to this project are documented here. The format follows
 
 - Published `dsh-llm-pool@0.1.0` to npm.
 
-[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/lyingloong/dsh-llm-pool/releases/tag/v0.1.0

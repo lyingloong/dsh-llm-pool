@@ -5,6 +5,9 @@ import {
   aggregateFailures,
   classifyFailure,
   cooldownMs,
+  countRetainedImages,
+  failureChunk,
+  imageOffloadFailure,
   mergeModelInfo,
   normalizeConfig,
   normalizeRetryPolicy,
@@ -228,4 +231,59 @@ test('pool policy config is serializable and stable', () => {
   assert.equal(result.pools[0].cooldown.serverMs, 1234)
   assert.deepEqual(result.pools[0].models[0].efforts.map((e) => e.id), ['low', 'high'])
   assert.equal(result.providers.p.models[0].contextWindow, 4096)
+})
+
+test('countRetainedImages walks nested tool results and skips offloaded images', () => {
+  assert.equal(
+    countRetainedImages([
+      { content: [{ type: 'text' }, { type: 'image' }, { type: 'image', offloaded: true }] },
+      { content: [{ type: 'tool-result', output: { content: [{ type: 'image' }] } }] },
+      { content: [{ type: 'tool-result', content: [{ type: 'image' }] }] },
+    ]),
+    3,
+  )
+  assert.equal(countRetainedImages(undefined), 0)
+})
+
+test('imageOffloadFailure translates an image budget rejection', () => {
+  const messages = [{ content: Array.from({ length: 32 }, () => ({ type: 'image' })) }]
+  const failure = imageOffloadFailure(
+    {
+      code: 'CONTEXT_WINDOW_EXCEEDED',
+      status: 400,
+      message: 'Invalid multimodal request: the request carries 32 image items, above this model\'s limit of 10',
+    },
+    messages,
+  )
+  assert.equal(failure.code, 'IMAGE_OFFLOAD_REQUIRED')
+  assert.equal(failure.offloadImages, 22)
+
+  const multimodal = imageOffloadFailure(
+    {
+      code: 'CONTEXT_WINDOW_EXCEEDED',
+      status: 400,
+      message: 'Failed to convert request: Multimodal function output is not supported',
+    },
+    messages,
+  )
+  assert.equal(multimodal.offloadImages, 32)
+
+  assert.equal(
+    imageOffloadFailure({ code: 'SERVER', status: 500, message: 'image limit 10' }, messages),
+    undefined,
+  )
+  assert.equal(
+    imageOffloadFailure({ code: 'INVALID_REQUEST', status: 400, message: 'bad JSON' }, messages),
+    undefined,
+  )
+})
+
+test('failureChunk preserves the offloadImages signal', () => {
+  const chunk = failureChunk({
+    code: 'IMAGE_OFFLOAD_REQUIRED',
+    message: 'offload images',
+    offloadImages: 22,
+  })
+  assert.equal(chunk.reason.kind, 'error')
+  assert.equal(chunk.reason.failure.offloadImages, 22)
 })
