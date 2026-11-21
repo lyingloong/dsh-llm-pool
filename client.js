@@ -184,6 +184,7 @@ const emptyDraft = (data) => ({
   id: '',
   displayName: '',
   strategy: 'sticky',
+  autoLimits: true,
   members: [],
   models: [],
   rawPool: {},
@@ -195,6 +196,7 @@ const draftFromRawPool = (data, poolId, rawPool) => ({
   id: poolId,
   displayName: typeof rawPool.displayName === 'string' ? rawPool.displayName : poolId,
   strategy: STRATEGY_LABELS[rawPool.strategy] === undefined ? 'sticky' : rawPool.strategy,
+  autoLimits: rawPool.autoLimits !== false,
   members: Array.isArray(rawPool.members) ? [...rawPool.members] : [],
   models: Array.isArray(rawPool.models)
     ? rawPool.models.map((model) => {
@@ -245,6 +247,7 @@ function validateDraft(draft, data) {
     seenModels.add(modelId)
     const mapped = draft.members.filter((member) => typeof model.targets[member] === 'string' && model.targets[member].trim().length > 0)
     if (mapped.length === 0) errors.push(`模型 "${modelId || '（空）'}" 至少要映射到一个成员渠道`)
+    if (draft.autoLimits !== false) continue
     for (const [label, value] of [['contextWindow', model.contextWindow], ['maxTokens', model.maxTokens]]) {
       if (value === '' || value === undefined || value === null) continue
       const numeric = Number(value)
@@ -280,6 +283,7 @@ function buildPoolFromDraft(draft) {
     ...base,
     displayName: draft.displayName.trim().length > 0 ? draft.displayName.trim() : draft.id.trim(),
     strategy: draft.strategy,
+    autoLimits: draft.autoLimits !== false,
     members: [...draft.members],
     models,
   }
@@ -377,6 +381,13 @@ function PoolCard({ pool, data, tests, onEdit, onDelete, onTest }) {
       el('span', { className: 'lp-model-id', key: 'id' }, model.id),
       model.name !== model.id ? el('span', { className: 'lp-model-name', key: 'name' }, model.name) : null,
       el('span', { className: 'lp-chip-row', key: 'targets' }, Object.entries(targets).map(([member, target]) => el('span', { className: 'lp-target', key: member }, member + ' → ' + target))),
+      model.auto
+        ? el('span', { className: 'lp-badge lp-badge-ok', key: 'auto' },
+            'Auto · ' + (model.auto.contextWindow ?? '?') + ' ctx' +
+            (model.auto.maxTokens ? ' · ' + model.auto.maxTokens + ' out' : '') +
+            (model.auto.maxImages ? ' · ≤' + model.auto.maxImages + ' 图' : '') +
+            (model.auto.toolResultImages === false ? ' · 无工具图' : ''))
+        : null,
       el('span', { className: 'lp-model-actions', key: 'actions' },
         el(PoolResultBadge, { result, key: 'result' }),
         el('button', { className: 'lp-btn', type: 'button', disabled: result !== undefined && result.status === 'running', onClick: () => onTest(pool.id, model.id) }, result !== undefined && result.status === 'running' ? '测试中…' : '测试'),
@@ -388,6 +399,7 @@ function PoolCard({ pool, data, tests, onEdit, onDelete, onTest }) {
       el('span', { className: 'lp-pool-name' }, pool.displayName),
       el('span', { className: 'lp-badge' }, pool.id),
       el('span', { className: 'lp-badge' }, STRATEGY_LABELS[pool.strategy] ?? pool.strategy),
+      el('span', { className: 'lp-badge' }, pool.autoLimits !== false ? '自动限制' : '手动限制'),
       el('span', { className: 'lp-badge' }, `${pool.members?.length ?? 0} 个渠道 · ${pool.models?.length ?? 0} 个模型`),
       el('span', { className: 'lp-model-actions' },
         el('button', { className: 'lp-btn', type: 'button', onClick: () => onEdit(pool.id) }, '编辑'),
@@ -524,11 +536,11 @@ function ModelEditor({ draft, model, index, onChange, onRemove, available }) {
       ),
       el('label', { className: 'lp-field', style: { flex: '0 1 140px' } },
         el('span', null, '上下文窗口（可选）'),
-        el('input', { value: model.contextWindow, inputMode: 'numeric', placeholder: '自动取最小', onChange: (event) => update({ contextWindow: event.target.value }) }),
+        el('input', { value: model.contextWindow, inputMode: 'numeric', disabled: draft.autoLimits !== false, placeholder: draft.autoLimits !== false ? '自动' : '自动取最小', onChange: (event) => update({ contextWindow: event.target.value }) }),
       ),
       el('label', { className: 'lp-field', style: { flex: '0 1 140px' } },
         el('span', null, '最大输出（可选）'),
-        el('input', { value: model.maxTokens, inputMode: 'numeric', placeholder: '自动取最小', onChange: (event) => update({ maxTokens: event.target.value }) }),
+        el('input', { value: model.maxTokens, inputMode: 'numeric', disabled: draft.autoLimits !== false, placeholder: draft.autoLimits !== false ? '自动' : '自动取最小', onChange: (event) => update({ maxTokens: event.target.value }) }),
       ),
       el('button', { className: 'lp-btn lp-btn-danger', type: 'button', onClick: onRemove }, '删除模型'),
     ),
@@ -628,6 +640,18 @@ function PoolEditor({ data, draft, setDraft, onSave, onCancel, saving }) {
           el('option', { value: 'failover' }, '主备切换（固定第一个可用渠道）'),
         ),
         el('small', null, '粘性：新会话按全局负载均衡分到一个渠道，之后一直用它；失败自动切换并粘在新渠道。'),
+      ),
+      el('div', { className: 'lp-field' },
+        el('span', null, '自动获取限制'),
+        el('label', { className: 'lp-hint', style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+          el('input', {
+            type: 'checkbox',
+            checked: draft.autoLimits !== false,
+            onChange: (event) => setDraft({ ...draft, autoLimits: event.target.checked }),
+          }),
+          '自动获取上下文、输出、输入模态和图片限制',
+        ),
+        el('small', null, draft.autoLimits !== false ? '默认开启；服务端没有提供时会回退到 adapter/默认值。关闭后使用模型里的手动值。' : '已关闭；使用模型里的手动上下文/输出值。'),
       ),
     ),
     el('div', { className: 'lp-section' },

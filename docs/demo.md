@@ -17,8 +17,8 @@ DSH:      0.2.1-rc.5 (desktop profile)
 ```text
 $ npm run verify
 check ok: 10 ESM files, package manifest, bundle patch
-ℹ tests 31
-ℹ pass 31
+ℹ tests 35
+ℹ pass 35
 ℹ fail 0
 ```
 

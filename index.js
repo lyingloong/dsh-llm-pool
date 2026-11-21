@@ -22,7 +22,24 @@ export const inject = ['llm']
 export function apply(ctx, config = {}) {
   const logger = ctx.logger
   const normalized = normalizeConfig(config)
-  const manager = new PoolManager({ llm: ctx.llm, config: normalized, logger })
+  const configEditor = ctx.get('configEditor')
+  const providerConfig = (member) => {
+    const editor = configEditor ?? ctx.get('configEditor')
+    if (editor === undefined) return undefined
+    try {
+      const entries = editor.entries()
+      const entry = Array.isArray(entries)
+        ? entries.find((candidate) =>
+            candidate?.options?.id === 'llm-pi-ai' ||
+            candidate?.options?.name === '@deepseek-ai/dsh-llm-pi-ai',
+          )
+        : undefined
+      return entry?.options?.config?.providers?.[member]
+    } catch {
+      return undefined
+    }
+  }
+  const manager = new PoolManager({ llm: ctx.llm, config: normalized, logger, providerConfig })
   const adapter = createPoolAdapter({ manager })
 
   let providerIds = []
@@ -70,7 +87,6 @@ export function apply(ctx, config = {}) {
 
   const webServer = ctx.get('webServer')
   const connection = ctx.get('connection')
-  const configEditor = ctx.get('configEditor')
   if (webServer !== undefined && connection !== undefined) {
     const server = createPoolServer({
       config: normalized,

@@ -23,6 +23,7 @@
   - 失败时自动切换，并粘在成功的渠道上。
 - **失败自动切换**：只在产生可见输出前静默切换；已经输出内容后再失败，交给 DSH 自带的 `dsh-llm-retry` 按 step 重试，不拼接两个渠道的回复。
 - **能力合并**：上下文窗口取保守最小值、输出上限取最小值、推理档位取交集（可手动覆盖/映射）、图片取并集；能力不匹配的渠道在调用时自动跳过。
+- **自动限制**（默认开启）：从 DSH 发现/adapter 自动获取上下文、输出和输入模态；图片数量上限和 tool-result 图片支持会在服务端拒绝后自动学习。手动值保留，关闭 Auto 后恢复使用。
 - **健康冷却**：认证/配额/限流/服务端/超时等失败进入冷却，避免反复打到坏渠道；全部冷却时 fail-open 选最早恢复的。
 - **图形化配置**：设置 → 模型页底部的“统一服务商池”面板可以查看状态、编辑渠道/模型映射、测试模型。
 - **可观测**：面板显示每个会话分配、每个路由的成功/失败、冷却、最近调用和实际命中的成员。
@@ -78,6 +79,9 @@ dsh plugin --profile desktop add <本仓库绝对路径>
     providers:
       pool-a:
         displayName: Example Pool
+        # 默认 true：自动获取上下文/输出/输入模态/图片限制
+        # 设为 false 后使用模型里的手动 contextWindow/maxTokens
+        autoLimits: true
         # sticky | round-robin | failover；默认 sticky
         strategy: sticky
         members: [provider-a, provider-b, provider-c]
@@ -116,6 +120,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 |---|---|
 | `providers.<id>` | 虚拟 provider 路由名；必须与已有 provider 不重名（例如已有 `provider-a` 时不能再用同名）。 |
 | `displayName` | 模型选择器里显示的名称。 |
+| `autoLimits` | 是否自动获取上下文/输出/输入模态和图片限制，默认 `true`；关闭后使用模型里的手动值。 |
 | `strategy` | `sticky`（默认，会话粘性）/ `round-robin`（每次调用轮询）/ `failover`（固定第一个可用）。 |
 | `members` | 有序的真实 provider 路由列表；也是轮询/分配顺序。 |
 | `models[].id` | 统一模型 id（模型选择器里显示）。 |
@@ -140,7 +145,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 ## Demo / 验证
 
-- CI：GitHub Actions 在 Node 22/24 上跑 `npm run verify`（31 个单元测试）。
+- CI：GitHub Actions 在 Node 22/24 上跑 `npm run verify`（35 个单元测试）。
 - 真实端到端调用和故障切换记录：[`docs/demo.md`](docs/demo.md)
   - 一个三渠道统一池的子代理调用返回 `ok`；
   - 临时把第一成员映射到不存在的模型后，自动回退到下一个成员并返回 `ok`。
@@ -195,7 +200,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 ```sh
 npm run verify       # 静态检查 + 单元测试
-npm test             # 31 个单元测试
+npm test             # 35 个单元测试
 npm run check        # package/bundle 校验 + 语法检查
 npm pack --dry-run   # 检查 npm 包内容
 ```

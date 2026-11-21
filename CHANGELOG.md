@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Auto limits (default on): discover context/output/input modalities through
+  DSH and learn image-count / tool-result-image support from provider
+  rejections. Auto ignores manual limit fields; turning it off restores them.
+- Proactive image offload: once Auto knows an image-count cap, an over-budget
+  request returns `IMAGE_OFFLOAD_REQUIRED` before calling a provider.
+- Panel Auto switch and per-model Auto summary.
+
+### Fixed
+
+- Images nested in tool-result content are counted, and tool-result image
+  support can be tracked per member.
+
 ## [0.1.2] - 2026-11-21
 
 ### Fixed

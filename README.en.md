@@ -35,6 +35,10 @@ next eligible member automatically.
 - **Capability composition**: minimum context/output window, reasoning-effort
   intersection with per-member mapping, image union, and conservative
   prompt/tool-update claims. Ineligible members are skipped per request.
+- **Automatic limits** (on by default): DSH discovery/adapter metadata supplies
+  context, output, and input modalities; image-count and tool-result image
+  support are learned from provider rejections. Manual values are retained and
+  become active when Auto is turned off.
 - **Health cooldowns** for auth, quota, rate limit, server, timeout, transport,
   and empty responses; if every candidate is cooling the pool fails open to the
   earliest recovery.
@@ -97,6 +101,9 @@ The full example is [`examples/pool.yml`](examples/pool.yml).
     providers:
       pool-a:
         displayName: Example Pool
+        # Default true: discover context/output/input and image limits.
+        # Set false to use the model's manual contextWindow/maxTokens.
+        autoLimits: true
         strategy: sticky        # sticky | round-robin | failover
         members: [provider-a, provider-b]
         models:
@@ -125,7 +132,7 @@ Omit `targets` to use the same model id on every member. Per-model
 
 ## Demo / verification
 
-- CI runs `npm run verify` on Node 22/24 (31 unit tests).
+- CI runs `npm run verify` on Node 22/24 (35 unit tests).
 - Real end-to-end and failover evidence: [`docs/demo.md`](docs/demo.md)
   - A subagent using `pool-a` / `model-a` returned `ok`.
   - A temporary first-target mapping to a nonexistent model fell back to
@@ -167,7 +174,7 @@ No build step, no runtime dependencies:
 
 ```sh
 npm run verify       # static checks + unit tests
-npm test             # 31 unit tests
+npm test             # 35 unit tests
 npm run check        # package/bundle validation + syntax
 npm pack --dry-run   # inspect the npm package contents
 ```

@@ -64,13 +64,22 @@ function imageFailure(message) {
 }
 
 class FakeLlm {
-  constructor(providers) {
+  constructor(providers, discovery) {
     this.providers = providers
+    this.discovery = discovery ?? {}
     this.calls = []
   }
 
   listProviders() {
     return Object.keys(this.providers).map((id) => ({ id, name: id }))
+  }
+
+  listConfigurableProviders() {
+    return Object.keys(this.providers).map((provider) => ({ provider, settingsNs: 'llm-pi-ai' }))
+  }
+
+  async discoverModels(_settingsNs, request) {
+    return this.discovery[request.provider] ?? []
   }
 
   async listModels(provider) {
@@ -139,8 +148,8 @@ function textOf(chunks) {
     .join('')
 }
 
-function makeRuntime(providers, config) {
-  const llm = new FakeLlm(providers)
+function makeRuntime(providers, config, discovery) {
+  const llm = new FakeLlm(providers, discovery)
   const manager = new PoolManager({ llm, config, now: () => 1_000_000 })
   const adapter = createPoolAdapter({ manager })
   return { llm, manager, adapter }
@@ -225,6 +234,51 @@ test('image budget rejection becomes the DSH image offload signal', async () => 
   assert.equal(failure.code, 'IMAGE_OFFLOAD_REQUIRED')
   assert.equal(failure.offloadImages, 22)
   assert.equal(llm.calls.length, 3)
+
+  const callsAfterFirst = llm.calls.length
+  const second = await collect(adapter.stream({ provider: 'pool', model: 'm', sessionId: 's1', messages }))
+  assert.equal(second.at(-1).reason.failure.code, 'IMAGE_OFFLOAD_REQUIRED')
+  assert.equal(second.at(-1).reason.failure.offloadImages, 22)
+  assert.equal(llm.calls.length, callsAfterFirst)
+})
+
+test('Auto discovery overrides adapter limits and respects autoLimits=false', async () => {
+  const providers = makeProviders()
+  const discovery = {
+    a: [{ id: 'm', contextWindow: 500_000, maxTokens: 200_000, inputModalities: ['text', 'image'] }],
+    b: [{ id: 'm', contextWindow: 500_000, maxTokens: 200_000, inputModalities: ['text', 'image'] }],
+    c: [{ id: 'm', contextWindow: 500_000, maxTokens: 200_000, inputModalities: ['text', 'image'] }],
+  }
+  const auto = makeRuntime(providers, buildConfig({ contextWindow: 1234, maxTokens: 5678 }), discovery)
+  const autoInfo = await auto.manager.resolveModel('pool', 'm')
+  assert.equal(autoInfo.context.contextWindow, 500_000)
+  assert.equal(autoInfo.defaultMaxTokens, 200_000)
+  assert.deepEqual(autoInfo.inputModalities, ['text', 'image'])
+
+  const manual = makeRuntime(providers, buildConfig({ contextWindow: 1234, maxTokens: 5678 }, { autoLimits: false }), discovery)
+  const manualInfo = await manual.manager.resolveModel('pool', 'm')
+  assert.equal(manualInfo.context.contextWindow, 1234)
+  assert.equal(manualInfo.defaultMaxTokens, 5678)
+  assert.deepEqual(manualInfo.inputModalities, ['text'])
+})
+
+test('Auto tool-result image feedback skips an incompatible member', async () => {
+  const providers = makeProviders()
+  providers.a.models.m.info = info('a', 'm', { inputModalities: ['text', 'image'] })
+  providers.b.models.m.info = info('b', 'm', { inputModalities: ['text', 'image'] })
+  providers.c.models.m.info = info('c', 'm', { inputModalities: ['text', 'image'] })
+  providers.a.models.m.script = imageFailure('Multimodal function output is not supported by this text-only backend')
+  const { llm, manager, adapter } = makeRuntime(providers, buildConfig({ input: ['text', 'image'] }))
+  const messages = [{ role: 'tool', content: [{ type: 'tool-result', output: { content: [{ type: 'image' }] } }] }]
+  manager.setPreferred('s1', manager.pool('pool'), 'a')
+  const first = await collect(adapter.stream({ provider: 'pool', model: 'm', sessionId: 's1', messages }))
+  assert.equal(textOf(first), 'b')
+  manager.setPreferred('s1', manager.pool('pool'), 'a')
+  const before = llm.calls.length
+  const second = await collect(adapter.stream({ provider: 'pool', model: 'm', sessionId: 's1', messages }))
+  assert.equal(textOf(second), 'b')
+  assert.equal(llm.calls.length, before + 1)
+  assert.equal(llm.calls.at(-1).provider, 'b')
 })
 
 test('reasoning effort filters candidates and applies an explicit mapping', async () => {

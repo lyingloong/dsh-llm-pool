@@ -6,7 +6,9 @@ import {
   classifyFailure,
   cooldownMs,
   countRetainedImages,
+  countToolResultImages,
   failureChunk,
+  imageFeedbackFromFailure,
   imageOffloadFailure,
   mergeModelInfo,
   normalizeConfig,
@@ -243,6 +245,56 @@ test('countRetainedImages walks nested tool results and skips offloaded images',
     3,
   )
   assert.equal(countRetainedImages(undefined), 0)
+  assert.equal(
+    countToolResultImages([
+      { content: [{ type: 'image' }] },
+      { content: [{ type: 'tool-result', output: { content: [{ type: 'image' }] } }] },
+    ]),
+    1,
+  )
+})
+
+test('autoLimits defaults to true and Auto ignores manual limits during merge', () => {
+  const result = normalizeConfig({
+    providers: {
+      p: {
+        members: ['a'],
+        models: [{ id: 'm', contextWindow: 1234, maxTokens: 5678, input: ['text'] }],
+      },
+    },
+  })
+  assert.equal(result.pools[0].autoLimits, true)
+  assert.equal(result.providers.p.autoLimits, true)
+  const pool = { ...result.pools[0], autoLimits: true }
+  const model = result.pools[0].models[0]
+  const target = {
+    member: 'a',
+    targetModel: 'm',
+    info: info({ context: { contextWindow: 1000 }, defaultMaxTokens: 2000, inputModalities: ['text', 'image'] }),
+  }
+  const auto = mergeModelInfo(pool, model, [target])
+  assert.equal(auto.context.contextWindow, 1000)
+  assert.equal(auto.defaultMaxTokens, 2000)
+  assert.deepEqual(auto.inputModalities, ['text', 'image'])
+
+  const manual = mergeModelInfo({ ...pool, autoLimits: false }, model, [target])
+  assert.equal(manual.context.contextWindow, 1234)
+  assert.equal(manual.defaultMaxTokens, 5678)
+  assert.deepEqual(manual.inputModalities, ['text'])
+})
+
+test('imageFeedbackFromFailure extracts auto image facts', () => {
+  assert.deepEqual(
+    imageFeedbackFromFailure({
+      code: 'CONTEXT_WINDOW_EXCEEDED',
+      message: 'the request carries 32 image items, above this model\'s limit of 10',
+    }),
+    { maxImages: 10 },
+  )
+  assert.deepEqual(
+    imageFeedbackFromFailure({ code: 'CONTEXT_WINDOW_EXCEEDED', message: 'Multimodal function output is not supported' }),
+    { supportsToolResultImages: false },
+  )
 })
 
 test('imageOffloadFailure translates an image budget rejection', () => {

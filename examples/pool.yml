@@ -12,6 +12,10 @@
     providers:
       pool-a:
         displayName: Example Pool
+        # Auto is on by default: discover context/output/input modalities from
+        # DSH and learn image-count/tool-result support from provider errors.
+        # Set to false to use the manual contextWindow/maxTokens below.
+        autoLimits: true
         # sticky: keep a session on one member (best cache).
         # round-robin: rotate every call. failover: always prefer the first.
         strategy: sticky
