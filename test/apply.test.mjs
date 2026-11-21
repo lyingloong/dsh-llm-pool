@@ -67,3 +67,33 @@ test('apply tolerates an empty configuration', () => {
   assert.deepEqual(registered, [])
   assert.equal(result.config.pools.length, 0)
 })
+
+test('apply mounts the panel API when web services arrive later', () => {
+  const { ctx } = makeCtx()
+  let injectCallback
+  const routes = []
+  ctx.inject = (_deps, callback) => {
+    injectCallback = callback
+    return () => {}
+  }
+  apply(ctx, {
+    providers: {
+      'pool-a': { members: ['a'], models: [{ id: 'm' }] },
+    },
+  })
+  assert.equal(typeof injectCallback, 'function')
+  injectCallback({
+    webServer: {
+      register(route) {
+        routes.push(route)
+        return () => {}
+      },
+    },
+    connection: {},
+    effect(callback) {
+      return callback()
+    },
+  })
+  assert.equal(routes.length, 3)
+  assert.deepEqual(routes.map((route) => route.path), ['/llm-pool/status', '/llm-pool/save', '/llm-pool/test'])
+})

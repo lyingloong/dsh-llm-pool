@@ -145,7 +145,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 ## Demo / 验证
 
-- CI：GitHub Actions 在 Node 22/24 上跑 `npm run verify`（35 个单元测试）。
+- CI：GitHub Actions 在 Node 22/24 上跑 `npm run verify`（36 个单元测试）。
 - 真实端到端调用和故障切换记录：[`docs/demo.md`](docs/demo.md)
   - 一个三渠道统一池的子代理调用返回 `ok`；
   - 临时把第一成员映射到不存在的模型后，自动回退到下一个成员并返回 `ok`。
@@ -200,7 +200,7 @@ dsh plugin --profile desktop add <本仓库绝对路径>
 
 ```sh
 npm run verify       # 静态检查 + 单元测试
-npm test             # 35 个单元测试
+npm test             # 36 个单元测试
 npm run check        # package/bundle 校验 + 语法检查
 npm pack --dry-run   # 检查 npm 包内容
 ```

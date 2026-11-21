@@ -132,7 +132,7 @@ Omit `targets` to use the same model id on every member. Per-model
 
 ## Demo / verification
 
-- CI runs `npm run verify` on Node 22/24 (35 unit tests).
+- CI runs `npm run verify` on Node 22/24 (36 unit tests).
 - Real end-to-end and failover evidence: [`docs/demo.md`](docs/demo.md)
   - A subagent using `pool-a` / `model-a` returned `ok`.
   - A temporary first-target mapping to a nonexistent model fell back to
@@ -174,7 +174,7 @@ No build step, no runtime dependencies:
 
 ```sh
 npm run verify       # static checks + unit tests
-npm test             # 35 unit tests
+npm test             # 36 unit tests
 npm run check        # package/bundle validation + syntax
 npm pack --dry-run   # inspect the npm package contents
 ```

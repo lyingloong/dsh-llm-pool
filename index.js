@@ -87,16 +87,34 @@ export function apply(ctx, config = {}) {
 
   const webServer = ctx.get('webServer')
   const connection = ctx.get('connection')
-  if (webServer !== undefined && connection !== undefined) {
-    const server = createPoolServer({
-      config: normalized,
-      manager,
-      llm: ctx.llm,
-      configEditor,
-      logger,
-    })
-    ctx.effect(() => server.register(webServer, connection), 'llm-pool: HTTP routes')
+  const server = createPoolServer({
+    config: normalized,
+    manager,
+    llm: ctx.llm,
+    configEditor,
+    logger,
+  })
+  const mountServer = (web, conn) => {
+    const dispose = server.register(web, conn)
     logger?.info?.('llm-pool: Models panel API registered at /llm-pool/*')
+    return dispose
+  }
+  if (webServer !== undefined && connection !== undefined) {
+    ctx.effect(() => mountServer(webServer, connection), 'llm-pool: HTTP routes')
+  } else if (typeof ctx.inject === 'function') {
+    // On a cold start the plugin can be applied before the web server and
+    // connection services mount. Register when both are available instead of
+    // permanently disabling the panel API.
+    ctx.effect(
+      () =>
+        ctx.inject(['webServer', 'connection'], (injected) => {
+          injected.effect(
+            () => mountServer(injected.webServer, injected.connection),
+            'llm-pool: HTTP routes',
+          )
+        }),
+      'llm-pool: HTTP routes await services',
+    )
   } else {
     logger?.info?.('llm-pool: no Web server/connection service; panel API disabled')
   }
