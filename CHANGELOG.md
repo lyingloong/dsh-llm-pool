@@ -82,7 +82,7 @@ All notable changes to this project are documented here. The format follows
 
 - Published `dsh-llm-pool@0.1.0` to npm.
 
-[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.2...HEAD
-[0.1.2]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.1...v0.1.2
+[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.1...HEAD
+[0.1.2]: https://www.npmjs.com/package/dsh-llm-pool/v/0.1.2
 [0.1.1]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/lyingloong/dsh-llm-pool/releases/tag/v0.1.0

@@ -78,8 +78,15 @@ together with the README.
 
 ## Release
 
+A release includes any of: a version bump, `npm publish`, a `vX.Y.Z` tag, or a
+GitHub Release. **Do not perform any of these without the maintainer's explicit
+approval**, and only for a substantial user-visible update. Batch small fixes,
+documentation, and landing-page changes into `main`/`Unreleased` until a
+release is approved.
+
+When a release is approved:
+
 1. Bump `package.json` and `CHANGELOG.md`.
 2. Run `npm run verify`.
-3. Commit, tag `vX.Y.Z`, push the branch and tag.
-4. Optionally publish with `npm publish` (the package name is
-   `dsh-llm-pool`).
+3. Commit and push the branch.
+4. Publish to npm and create the tag/Release only if the approval covers them.
