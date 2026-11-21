@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-21
+
 ### Added
 
 - Auto limits (default on): discover context/output/input modalities through
@@ -19,6 +21,12 @@ All notable changes to this project are documented here. The format follows
 
 - Images nested in tool-result content are counted, and tool-result image
   support can be tracked per member.
+- The Models panel API now registers when `webServer` / `connection` services
+  become available after a cold start, instead of staying at HTTP 404.
+
+### Distribution
+
+- Published `dsh-llm-pool@0.2.0` to npm (latest).
 
 ## [0.1.2] - 2026-11-21
 
@@ -96,7 +104,8 @@ All notable changes to this project are documented here. The format follows
 
 - Published `dsh-llm-pool@0.1.0` to npm.
 
-[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/lyingloong/dsh-llm-pool/releases/tag/v0.2.0
 [0.1.2]: https://www.npmjs.com/package/dsh-llm-pool/v/0.1.2
 [0.1.1]: https://github.com/lyingloong/dsh-llm-pool/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/lyingloong/dsh-llm-pool/releases/tag/v0.1.0

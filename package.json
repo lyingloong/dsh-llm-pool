@@ -1,6 +1,6 @@
 {
   "name": "dsh-llm-pool",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Unified LLM provider pools for DeepSeek Harness: session-sticky global balancing, capability-aware model mapping, and automatic failover.",
   "type": "module",
   "main": "index.js",
